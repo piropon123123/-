@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>関東歴史建築スタンプラリー</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+:root{
+  --shu:#C0392B; --shu-dark:#922B21; --shu-light:#E74C3C;
+  --kin:#B8860B; --kin-light:#D4A017;
+  --sumi:#1C1208; --sumi-mid:#3D2B1F;
+  --washi:#F7F0E2; --washi-dark:#E8D9BB;
+  --cha:#7A6040; --cha-light:#A08050;
+  --moss:#2d6a2d; --shiro:#FDFAF4;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--washi);color:var(--sumi);min-height:100vh;overflow-x:hidden;}
+
+/* ── 認証 ── */
+#auth-screen{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 50% 40%,#2a1808,#0e0602);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+.auth-mon{font-size:72px;margin-bottom:24px;animation:breathe 4s ease-in-out infinite;}
+@keyframes breathe{0%,100%{transform:scale(1);filter:drop-shadow(0 0 16px rgba(184,134,11,.4));}50%{transform:scale(1.04);filter:drop-shadow(0 0 40px rgba(184,134,11,.8));}}
+.auth-card{background:rgba(255,255,255,.04);border:1px solid rgba(184,134,11,.35);border-radius:2px;padding:36px 40px;max-width:360px;width:100%;text-align:center;}
+.auth-kana{font-size:.68rem;letter-spacing:.25em;color:rgba(255,255,255,.35);margin-bottom:6px;}
+.auth-title{font-family:'Noto Serif JP',serif;color:var(--kin-light);font-size:1.1rem;letter-spacing:.18em;margin-bottom:28px;line-height:1.7;}
+.auth-divider{width:40px;height:1px;background:rgba(184,134,11,.4);margin:0 auto 24px;}
+.auth-q{font-family:'Noto Serif JP',serif;color:rgba(255,255,255,.88);font-size:1rem;line-height:1.9;margin-bottom:28px;}
+.auth-yes{display:block;width:100%;padding:14px;background:var(--shu);color:#fff;border:none;border-radius:2px;font-family:'Noto Serif JP',serif;font-size:.95rem;letter-spacing:.1em;cursor:pointer;margin-bottom:12px;transition:background .2s;}
+.auth-yes:hover{background:var(--shu-light);}
+.auth-no{display:block;width:100%;padding:12px;background:transparent;color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.12);border-radius:2px;font-size:.85rem;cursor:pointer;}
+.auth-no:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);}
+.auth-denied{display:none;margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.4);font-size:.82rem;line-height:1.8;}
+
+/* ── ヘッダー ── */
+#app{display:none;}
+.app-header{background:var(--sumi);position:sticky;top:0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.4);}
+.header-top{display:flex;align-items:center;padding:0 16px;height:52px;max-width:1000px;margin:0 auto;}
+.header-mon{font-size:22px;margin-right:10px;}
+.header-title{font-family:'Noto Serif JP',serif;color:var(--kin-light);font-size:.98rem;letter-spacing:.14em;flex:1;}
+.header-counter{font-size:.72rem;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:14px;}
+.hc-val{color:var(--kin-light);font-family:'Noto Serif JP',serif;font-size:1.05rem;}
+
+/* GPS バー */
+.gps-bar{background:#0f1f0f;padding:5px 16px;display:flex;align-items:center;gap:8px;font-size:.7rem;color:#5a9c5a;max-width:1000px;margin:0 auto;}
+.gps-bar.off{color:rgba(255,255,255,.25);}
+.gps-dot{width:6px;height:6px;border-radius:50%;background:#5a9c5a;animation:gpsPulse 2s infinite;}
+.gps-bar.off .gps-dot{background:rgba(255,255,255,.25);animation:none;}
+@keyframes gpsPulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+#gps-wrapper{background:var(--sumi);}
+
+/* 一覧上部の全体地図 */
+#list-map-wrap{margin-bottom:16px;border-radius:3px;overflow:hidden;border:1px solid var(--washi-dark);}
+#list-map{width:100%;height:300px;background:#e8e0d0;}
+.list-map-note{font-size:.7rem;color:var(--cha);padding:5px 8px;background:var(--shiro);border-top:1px solid var(--washi-dark);text-align:center;}
+
+/* タブ */
+.tab-bar{display:flex;background:rgba(0,0,0,.3);max-width:1000px;margin:0 auto;overflow-x:auto;scrollbar-width:none;}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab-btn{flex:1;min-width:72px;padding:10px 6px;background:none;border:none;color:rgba(255,255,255,.4);font-size:.72rem;cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap;font-family:'Noto Sans JP',sans-serif;}
+.tab-btn.active{color:var(--kin-light);border-bottom-color:var(--shu);}
+
+/* コンテンツ */
+.content{max-width:1000px;margin:0 auto;padding:16px 12px 60px;}
+.view{display:none;} .view.active{display:block;}
+
+/* フィルター */
+.filter-section{margin-bottom:8px;}
+.filter-label{font-size:.68rem;color:var(--cha);letter-spacing:.1em;margin-bottom:5px;font-weight:500;}
+.filter-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px;}
+.fc{padding:4px 12px;background:var(--washi-dark);border:1px solid rgba(0,0,0,.1);border-radius:20px;font-size:.7rem;color:var(--cha);cursor:pointer;transition:all .15s;}
+.fc.on,.fc:hover{background:var(--shu);color:#fff;border-color:var(--shu);}
+.fc.era-filter.on,.fc.era-filter:hover{background:var(--kin);border-color:var(--kin);color:#fff;}
+
+.search-box{width:100%;padding:9px 14px;background:var(--shiro);border:1.5px solid var(--washi-dark);border-radius:2px;font-family:'Noto Sans JP',sans-serif;font-size:.88rem;color:var(--sumi);outline:none;margin-bottom:12px;}
+.search-box:focus{border-color:var(--kin);}
+
+/* カードグリッド */
+.spot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;}
+.spot-card{background:var(--shiro);border:1px solid var(--washi-dark);border-left:4px solid var(--washi-dark);border-radius:2px;padding:14px 14px 12px;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;}
+.spot-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1);}
+.spot-card.visited{border-left-color:var(--shu);}
+.spot-card.nearby{border-left-color:var(--moss)!important;box-shadow:0 0 0 2px rgba(45,106,45,.3);}
+.nearby-badge{position:absolute;top:9px;right:9px;background:var(--moss);color:#fff;font-size:.6rem;padding:2px 7px;border-radius:10px;animation:nearPulse 1.5s infinite;}
+@keyframes nearPulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+.sc-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;}
+.sc-num{font-size:.62rem;background:var(--washi-dark);color:var(--cha);padding:2px 6px;border-radius:1px;white-space:nowrap;margin-top:2px;}
+.sc-name{font-family:'Noto Serif JP',serif;font-size:.95rem;font-weight:600;line-height:1.4;flex:1;}
+.sc-era{font-size:.67rem;color:var(--cha-light);margin-bottom:5px;}
+.sc-lead{font-size:.77rem;color:var(--cha);line-height:1.65;}
+.sc-badges{display:flex;gap:4px;margin-top:9px;flex-wrap:wrap;}
+.badge{font-size:.64rem;padding:2px 7px;border-radius:2px;}
+.badge-visited{background:rgba(192,57,43,.1);color:var(--shu);}
+.badge-quiz{background:rgba(184,134,11,.12);color:var(--kin);}
+.badge-region{background:var(--washi-dark);color:var(--cha);}
+.badge-near{background:rgba(45,106,45,.12);color:var(--moss);}
+
+/* 地図タブ */
+#spot-map{width:100%;height:380px;border-radius:3px;border:1px solid var(--washi-dark);background:#e8e0d0;}
+.map-note{font-size:.73rem;color:var(--cha);margin-top:6px;text-align:center;line-height:1.6;}
+
+/* 朱印帳 */
+.stamp-book{background:var(--shiro);border:2px solid var(--washi-dark);border-radius:2px;padding:20px 16px;}
+.sb-header{text-align:center;margin-bottom:18px;}
+.sb-title{font-family:'Noto Serif JP',serif;font-size:1.1rem;letter-spacing:.15em;margin-bottom:4px;}
+.sb-sub{font-size:.7rem;color:var(--cha);}
+.stamp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;}
+.stamp-cell{aspect-ratio:1;border:1.5px dashed var(--washi-dark);border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;padding:5px 3px;text-align:center;}
+.stamp-cell.stamped{border:2px solid var(--shu);background:rgba(192,57,43,.04);}
+.stamp-ico{font-size:24px;opacity:.18;transition:all .3s;margin-bottom:2px;}
+.stamp-cell.stamped .stamp-ico{opacity:1;filter:drop-shadow(0 0 5px rgba(192,57,43,.4));}
+.stamp-lbl{font-size:.52rem;color:var(--cha);line-height:1.3;}
+.stamp-cell.stamped .stamp-lbl{color:var(--shu-dark);font-weight:500;}
+
+/* 進捗 */
+.prog-card{background:var(--shiro);border:1px solid var(--washi-dark);border-radius:2px;padding:20px;margin-bottom:12px;}
+.prog-title{font-family:'Noto Serif JP',serif;font-size:.95rem;margin-bottom:14px;}
+.pbar-wrap{background:var(--washi-dark);border-radius:3px;height:9px;overflow:hidden;margin-bottom:6px;}
+.pbar{height:100%;border-radius:3px;transition:width .6s ease;}
+.pbar-visit{background:linear-gradient(90deg,var(--shu),var(--shu-light));}
+.pbar-quiz{background:linear-gradient(90deg,var(--kin),var(--kin-light));}
+.pbar-labels{display:flex;justify-content:space-between;font-size:.74rem;color:var(--cha);margin-bottom:14px;}
+.era-rows{margin-top:12px;}
+.era-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--washi-dark);font-size:.82rem;}
+.era-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.era-name{flex:1;}
+.era-cnt{font-size:.74rem;color:var(--cha);}
+.achievement-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:4px;}
+.ach-card{background:var(--washi);border:1px solid var(--washi-dark);border-radius:2px;padding:12px 8px;text-align:center;}
+.ach-card.unlocked{background:rgba(192,57,43,.06);border-color:rgba(192,57,43,.3);}
+.ach-ico{font-size:26px;margin-bottom:4px;}
+.ach-name{font-size:.66rem;color:var(--cha);line-height:1.4;}
+.ach-card.unlocked .ach-name{color:var(--shu-dark);}
+
+/* モーダル */
+.modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(10,5,0,.88);display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:14px 10px 40px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--shiro);border-radius:2px;max-width:680px;width:100%;margin:auto;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.6);animation:slideUp .25s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.modal-hero{background:var(--sumi);padding:22px 22px 18px;border-bottom:3px solid var(--shu);position:relative;}
+.modal-era-badge{display:inline-block;background:var(--shu);color:#fff;font-size:.67rem;padding:2px 10px;border-radius:1px;letter-spacing:.08em;margin-bottom:7px;}
+.modal-ttl{font-family:'Noto Serif JP',serif;color:#fff;font-size:1.38rem;line-height:1.45;margin-bottom:5px;}
+.modal-loc{font-size:.74rem;color:rgba(255,255,255,.43);letter-spacing:.04em;}
+.modal-close{position:absolute;top:13px;right:13px;width:29px;height:29px;background:rgba(255,255,255,.1);border:none;border-radius:50%;color:#fff;font-size:.88rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:rgba(255,255,255,.2);}
+.modal-body{padding:20px 22px;}
+.section-hd{font-family:'Noto Serif JP',serif;font-size:.74rem;letter-spacing:.14em;color:var(--shu);margin-bottom:9px;display:flex;align-items:center;gap:8px;}
+.section-hd::after{content:'';flex:1;height:1px;background:var(--washi-dark);}
+.modal-desc{font-size:.85rem;line-height:2.05;color:var(--sumi);margin-bottom:18px;white-space:pre-line;}
+.links-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px;}
+.ext-link{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:var(--washi-dark);border-radius:2px;font-size:.75rem;color:var(--cha);text-decoration:none;transition:all .15s;}
+.ext-link:hover{background:var(--sumi);color:#fff;}
+
+/* モーダル内地図 */
+#modal-map{width:100%;height:210px;border-radius:3px;border:1px solid var(--washi-dark);margin-bottom:18px;background:#e8e0d0;}
+
+/* GPS到達インフォ */
+.gps-info{background:rgba(45,106,45,.1);border:1px solid rgba(45,106,45,.35);border-radius:2px;padding:10px 13px;margin-bottom:14px;font-size:.78rem;color:var(--moss);display:none;}
+.gps-info.show{display:block;}
+
+/* クイズ */
+.quiz-wrap{background:var(--washi);border:1px solid var(--washi-dark);border-radius:2px;padding:16px;margin-bottom:16px;}
+.quiz-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;}
+.quiz-qnum{font-size:.7rem;color:var(--cha);}
+.quiz-dots{display:flex;gap:4px;}
+.qdot{width:7px;height:7px;border-radius:50%;background:var(--washi-dark);transition:background .2s;}
+.qdot.done{background:var(--kin);}
+.qdot.current{background:var(--shu);}
+.qdot.wrong{background:var(--cha-light);}
+.quiz-q{font-family:'Noto Serif JP',serif;font-size:.9rem;line-height:1.75;margin-bottom:12px;}
+.quiz-choices{display:flex;flex-direction:column;gap:6px;}
+.qchoice{padding:9px 13px;background:var(--shiro);border:1.5px solid var(--washi-dark);border-radius:2px;font-size:.83rem;font-family:'Noto Sans JP',sans-serif;color:var(--sumi);cursor:pointer;text-align:left;transition:border-color .15s,background .15s;}
+.qchoice:hover:not(:disabled){border-color:var(--kin);background:#fff;}
+.qchoice.correct{background:rgba(44,110,60,.1);border-color:#2C6E3C;color:#1a4a25;}
+.qchoice.wrong{background:rgba(192,57,43,.07);border-color:rgba(192,57,43,.35);color:var(--shu-dark);}
+.qchoice:disabled{cursor:default;}
+.quiz-fb{display:none;margin-top:10px;padding:10px 13px;border-radius:2px;font-size:.79rem;line-height:1.75;}
+.quiz-fb.correct{display:block;background:rgba(44,110,60,.09);border-left:3px solid #2C6E3C;color:#1a4a25;}
+.quiz-fb.wrong{display:block;background:rgba(192,57,43,.07);border-left:3px solid var(--shu);color:var(--shu-dark);}
+.quiz-nav{display:flex;justify-content:space-between;align-items:center;margin-top:11px;}
+.qnav-btn{padding:7px 14px;background:var(--sumi);color:#fff;border:none;border-radius:2px;font-size:.76rem;cursor:pointer;transition:background .15s;}
+.qnav-btn:hover{background:var(--sumi-mid);}
+.qnav-btn:disabled{background:var(--washi-dark);color:var(--cha);cursor:default;}
+.quiz-result{background:linear-gradient(135deg,var(--shu),var(--kin));color:#fff;text-align:center;padding:16px;border-radius:2px;margin-bottom:14px;}
+.qr-score{font-size:1.45rem;font-family:'Noto Serif JP',serif;font-weight:700;}
+.qr-sub{font-size:.77rem;opacity:.85;margin-top:3px;}
+
+/* スタンプ状態表示 */
+.stamp-status-done{width:100%;padding:14px;background:rgba(160,128,80,.25);color:var(--cha-light);border:none;border-radius:2px;font-family:'Noto Serif JP',serif;font-size:1rem;letter-spacing:.1em;text-align:center;display:block;}
+.stamp-status-wait{width:100%;padding:14px;background:rgba(0,0,0,.06);color:var(--cha);border:1.5px dashed var(--washi-dark);border-radius:2px;font-family:'Noto Serif JP',serif;font-size:.88rem;letter-spacing:.05em;text-align:center;display:block;line-height:1.7;}
+.stamp-status-near{width:100%;padding:14px;background:rgba(45,106,45,.15);color:var(--moss);border:1.5px solid var(--moss);border-radius:2px;font-family:'Noto Serif JP',serif;font-size:.95rem;letter-spacing:.05em;text-align:center;display:block;animation:nearPulse 1.5s infinite;}
+
+/* トースト */
+.nearby-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--moss);color:#fff;padding:11px 20px;border-radius:24px;font-size:.84rem;font-family:'Noto Serif JP',serif;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:1000;opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;}
+.nearby-toast.show{opacity:1;}
+
+/* レスポンシブ */
+@media(max-width:580px){
+  .spot-grid{grid-template-columns:1fr;}
+  .modal-ttl{font-size:1.1rem;}
+  .modal-body{padding:14px 14px;}
+  .modal-hero{padding:16px 14px 13px;}
+  .stamp-grid{grid-template-columns:repeat(5,1fr);gap:6px;}
+  .stamp-ico{font-size:19px;}
+  .stamp-lbl{font-size:.46rem;}
+  #spot-map{height:280px;}
+  #modal-map{height:175px;}
+  #list-map{height:220px;}
+  .header-counter{display:none;}
+}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--washi-dark);border-radius:2px;}
+</style>
+<style>
+/* 料金・時間・アクセス表示 */
+.spot-info-grid{
+  display:grid;gap:0;
+  border:1px solid var(--washi-dark);
+  border-radius:3px;
+  overflow:hidden;
+  margin-bottom:20px;
+  font-size:0.83rem;
+}
+.spot-info-row{
+  display:grid;
+  grid-template-columns:5.5em 1fr;
+  border-bottom:1px solid var(--washi-dark);
+}
+.spot-info-row:last-child{border-bottom:none;}
+.spot-info-lbl{
+  background:var(--washi-dark);
+  color:var(--cha);
+  padding:10px 10px;
+  font-size:0.72rem;
+  font-weight:500;
+  display:flex;
+  align-items:flex-start;
+  gap:4px;
+  line-height:1.5;
+}
+.spot-info-val{
+  padding:10px 12px;
+  color:var(--sumi);
+  line-height:1.75;
+  background:var(--shiro);
+}
+</style>
+</style>
+<style>
+/* ─── 一覧タブ：全スポットマップボタン ─── */
+.map-btn-wrap{margin-bottom:16px;}
+.map-btn-all{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;padding:15px;
+  background:linear-gradient(135deg,#1a73e8,#0d56c0);
+  color:#fff;border:none;border-radius:8px;
+  font-family:'Noto Serif JP',serif;font-size:0.95rem;
+  cursor:pointer;text-decoration:none;
+  box-shadow:0 2px 10px rgba(26,115,232,0.3);
+  transition:box-shadow 0.2s,transform 0.1s;
+}
+.map-btn-all:hover{box-shadow:0 4px 18px rgba(26,115,232,0.45);transform:translateY(-1px);}
+
+/* ─── 地図タブ ─── */
+.mapview-header{text-align:center;padding:16px 0 14px;margin-bottom:14px;border-bottom:1px solid var(--washi-dark);}
+.mapview-header-title{font-family:'Noto Serif JP',serif;font-size:1rem;color:var(--sumi);margin-bottom:4px;}
+.mapview-header-sub{font-size:0.74rem;color:var(--cha);}
+.mapview-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:14px;
+}
+.mapview-card{
+  display:block;text-decoration:none;color:inherit;
+  background:var(--shiro);
+  border:1px solid var(--washi-dark);
+  border-radius:8px;overflow:hidden;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+  transition:box-shadow 0.15s,transform 0.15s;
+}
+.mapview-card:hover{box-shadow:0 5px 18px rgba(0,0,0,0.13);transform:translateY(-2px);}
+.mapview-card-top{display:flex;align-items:center;gap:13px;padding:14px 14px 10px;}
+.mapview-card-ico{
+  font-size:1.9rem;flex-shrink:0;
+  width:46px;height:46px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--washi);border-radius:50%;
+  border:1px solid var(--washi-dark);
+}
+.mapview-card-main{flex:1;min-width:0;}
+.mapview-card-num{
+  font-size:0.62rem;color:var(--cha);
+  background:var(--washi-dark);
+  display:inline-block;padding:1px 7px;border-radius:2px;margin-bottom:5px;
+}
+.mapview-card-name{
+  font-family:'Noto Serif JP',serif;
+  font-size:0.97rem;font-weight:600;line-height:1.35;
+}
+.mapview-card-meta{font-size:0.7rem;color:var(--cha-light);margin-top:3px;}
+.mapview-card-badges{padding:0 14px 10px;display:flex;gap:5px;flex-wrap:wrap;}
+.mapview-badge-visited{font-size:0.65rem;padding:2px 8px;background:rgba(192,57,43,0.1);color:var(--shu);border-radius:2px;}
+.mapview-badge-quiz{font-size:0.65rem;padding:2px 8px;background:rgba(184,134,11,0.12);color:var(--kin);border-radius:2px;}
+.mapview-card-footer{
+  background:linear-gradient(90deg,#1a73e8,#0d56c0);
+  color:#fff;padding:9px 14px;
+  font-size:0.78rem;
+  display:flex;align-items:center;
+}
+.mapview-card-footer span{flex:1;}
+.mapview-card-arrow{font-size:0.9rem;}
+
+/* ─── スポットモーダル：地図ボタン ─── */
+.map-btn-spot{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;padding:12px;
+  background:linear-gradient(135deg,#1a73e8,#0d56c0);
+  color:#fff;border:none;border-radius:8px;
+  font-family:'Noto Serif JP',serif;font-size:0.9rem;
+  cursor:pointer;text-decoration:none;
+  margin-bottom:18px;
+  box-shadow:0 2px 8px rgba(26,115,232,0.3);
+  transition:box-shadow 0.2s;
+}
+.map-btn-spot:hover{box-shadow:0 4px 14px rgba(26,115,232,0.45);}
+
+@media(max-width:580px){.mapview-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div id="auth-screen">
+  <div class="auth-mon">⛩️</div>
+  <div class="auth-card">
+    <div class="auth-kana">Kanto Historical Heritage Trail</div>
+    <div class="auth-title">関東歴史建築<br>スタンプラリー</div>
+    <div class="auth-divider"></div>
+    <div class="auth-q">UWヒロさんのお部屋の<br>メンバーですか？</div>
+    <button class="auth-yes" onclick="authYes()">はい、メンバーです ✓</button>
+    <button class="auth-no" onclick="authNo()">いいえ</button>
+    <div class="auth-denied" id="auth-denied">申し訳ございません。<br>このアプリはUWヒロさんのお部屋の<br>メンバー限定公開です。</div>
+  </div>
+</div>
+
+<div id="app">
+  <header class="app-header">
+    <div class="header-top">
+      <div class="header-mon">⛩️</div>
+      <div class="header-title">関東歴史建築スタンプラリー</div>
+      <div class="header-counter">
+        <span><span class="hc-val" id="hc-visited">0</span>/30 訪問</span>
+        <span><span class="hc-val" id="hc-quiz">0</span> 謎解き</span>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab(this,'list')">📋 一覧</button>
+      <button class="tab-btn" onclick="switchTab(this,'mapview')">🗺 地図</button>
+      <button class="tab-btn" onclick="switchTab(this,'stamp')">🎴 朱印帳</button>
+      <button class="tab-btn" onclick="switchTab(this,'progress')">📊 進捗</button>
+    </div>
+    <div id="gps-wrapper">
+      <div class="gps-bar off" id="gps-bar">
+        <div class="gps-dot"></div>
+        <span id="gps-txt">GPS：スタンプのため位置情報を取得中…</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- 一覧タブ -->
+    <div id="view-list" class="view active">
+      <div class="map-btn-wrap" id="map-all-wrap"></div>
+      <input class="search-box" type="text" placeholder="🔍 スポット名・地域で検索…" oninput="filterCards(this.value)">
+      <div class="filter-section">
+        <div class="filter-label">📍 地域</div>
+        <div class="filter-row" id="filter-region"></div>
+      </div>
+      <div class="filter-section">
+        <div class="filter-label">🗓 年代</div>
+        <div class="filter-row" id="filter-era"></div>
+      </div>
+      <div class="spot-grid" id="spot-grid"></div>
+    </div>
+
+    <!-- 地図タブ -->
+    <div id="view-mapview" class="view">
+      <div class="mapview-header">
+        <div class="mapview-header-title">🗺 全スポットをGoogleマップで確認</div>
+        <div class="mapview-header-sub">カードをタップするとGoogleマップが開きます</div>
+      </div>
+      <div id="mapview-grid" class="mapview-grid"></div>
+    </div>
+
+    <!-- 朱印帳タブ -->
+    <div id="view-stamp" class="view">
+      <div class="stamp-book">
+        <div class="sb-header">
+          <div class="sb-title">🎴 関東歴史建築 御朱印帳</div>
+          <div class="sb-sub">各スポットから50m以内に近づくと自動でスタンプが押されます</div>
+        </div>
+        <div class="stamp-grid" id="stamp-grid"></div>
+      </div>
+    </div>
+
+    <!-- 進捗タブ -->
+    <div id="view-progress" class="view">
+      <div class="prog-card">
+        <div class="prog-title">📈 全体の進捗</div>
+        <div class="pbar-wrap"><div class="pbar pbar-visit" id="pb-visit" style="width:0%"></div></div>
+        <div class="pbar-labels"><span>訪問済みスポット</span><span id="pl-visit">0 / 30</span></div>
+        <div class="pbar-wrap"><div class="pbar pbar-quiz" id="pb-quiz" style="width:0%"></div></div>
+        <div class="pbar-labels"><span>謎解きクリア</span><span id="pl-quiz">0 / 30</span></div>
+      </div>
+      <div class="prog-card">
+        <div class="prog-title">🏯 時代別</div>
+        <div class="era-rows" id="era-rows"></div>
+      </div>
+      <div class="prog-card">
+        <div class="prog-title">🏅 実績バッジ</div>
+        <div class="achievement-grid" id="ach-grid"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- モーダル -->
+<div class="modal-overlay" id="modal-overlay" onclick="overlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-hero">
+      <span class="modal-era-badge" id="m-era"></span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-ttl" id="m-title"></div>
+      <div class="modal-loc" id="m-loc"></div>
+    </div>
+    <div class="modal-body">
+      <div class="section-hd">地　図</div>
+      <div id="modal-map-btn"></div>
+      <div class="gps-info" id="gps-info">📍 現在地がこのスポットの<b>50m以内</b>に入りました！自動でスタンプを押しています…</div>
+      <div class="spot-info-grid" id="spot-info-grid"></div>
+      <div class="section-hd">解　説</div>
+      <div class="modal-desc" id="m-desc"></div>
+      <div class="section-hd">公式・関連リンク</div>
+      <div class="links-wrap" id="m-links"></div>
+      <div class="section-hd">謎解きクイズ</div>
+      <div class="quiz-wrap" id="quiz-wrap">
+        <div class="quiz-top">
+          <span class="quiz-qnum" id="q-num">問 1 / 5</span>
+          <div class="quiz-dots" id="q-dots"></div>
+        </div>
+        <div class="quiz-q" id="q-text"></div>
+        <div class="quiz-choices" id="q-choices"></div>
+        <div class="quiz-fb" id="q-fb"></div>
+        <div class="quiz-nav">
+          <button class="qnav-btn" id="q-prev" onclick="quizMove(-1)" disabled>◀ 前の問</button>
+          <button class="qnav-btn" id="q-next" onclick="quizMove(1)">次の問 ▶</button>
+        </div>
+      </div>
+      <div id="quiz-result-area"></div>
+      <div id="stamp-status"></div>
+    </div>
+  </div>
+</div>
+
+<div class="nearby-toast" id="nearby-toast"></div>
+
+<script>
+const GPS_RADIUS = 50;
+let userLat=null, userLng=null, gpsWatchId=null;
+let lastNear=new Set();
+const STATE={visited:{},quizDone:{},quizScores:{},quizAnswers:{}};
+const ERA_GROUPS=['全て','鎌倉以前','江戸以前','江戸','明治','大正','昭和'];
+const ERA_COLORS={'鎌倉以前':'#8E4585','江戸以前':'#2C6E8A','江戸':'#4A5E3A','明治':'#B8860B','大正':'#C0392B','昭和':'#7A6040'};
+let currentSpot=null, quizIdx=0;
+let filterRegion='全て', filterEra='全て', searchVal='';
+
+const SPOTS=[
+{id:1,icon:"🏯",name:"浅草寺",era:"奈良〜江戸",eraGroup:"江戸以前",region:"東京",
+ lat:35.7148,lng:139.7967,loc:"東京都台東区浅草2丁目3番1号",
+ lead:"東京最古の寺院。雷門・五重塔・仲見世通りが一体となった江戸情緒の結晶。",
+ desc:`浅草寺は628年（推古天皇36年）、隅田川で漁をしていた桧前浜成・竹成兄弟の網に観音像がかかったことを起源とし、東京都内最古の寺院として知られています。土師真中知が出家してこの地を守り、聖観世音菩薩を祀ったことが草創とされています。
+
+現在の「雷門（風雷神門）」は942年に平公雅が武蔵守に任じられた際の創建と伝えられ、幾度の消失を経て1960年（昭和35年）に松下幸之助の寄進によって再建されました。門に吊るされた大提灯は高さ約3.9m・重さ約700kgにおよびます。
+
+五重塔は高さ53m。現在の建物は1973年（昭和48年）に再建され、最上層に仏舎利が奉安されています。雷門から続く仲見世通りは全長約250mで、江戸時代初期に境内を清掃する代わりに境内での商売を許可されたことが起源とされています。
+
+本堂（観音堂）は1649年（慶安2年）に徳川家光の寄進で建立されたものが戦火で焼失し、現在の本堂は1958年（昭和33年）に再建されました。毎年正月三が日には約300万人が初詣に訪れ、日本有数の参拝者数を誇ります。`,
+ links:[{l:"浅草寺公式",u:"https://www.senso-ji.jp/"},{l:"台東区観光情報",u:"https://www.taitocity.net/taito/sightseeing/"}],
+ quiz:[
+  {q:"浅草寺の草創は何年とされているか？",c:["628年（推古天皇36年）","710年（和銅3年）","794年（延暦13年）","1185年（文治元年）"],a:0,exp:"628年（推古天皇36年）、隅田川の漁師兄弟の網に観音像がかかったことが起源とされています。"},
+  {q:"雷門の大提灯を1960年に寄進した実業家は誰？",c:["渋沢栄一","本田宗一郎","松下幸之助","豊田喜一郎"],a:2,exp:"パナソニック（松下電器）の創業者・松下幸之助が寄進しました。"},
+  {q:"仲見世通りの全長はおよそ何m？",c:["約100m","約250m","約400m","約600m"],a:1,exp:"雷門から宝蔵門まで約250mの参道に、約90店舗が並んでいます。"},
+  {q:"現在の本堂が再建されたのはいつ？",c:["1945年","1952年","1958年","1973年"],a:2,exp:"戦災で焼失した本堂は1958年（昭和33年）に再建されました。"},
+  {q:"境内にある「二天門」の文化財指定は？",c:["国宝","国の重要文化財","東京都指定","無指定"],a:1,exp:"二天門は国の重要文化財に指定されています。"}
+ ],
+ fee:"無料（宝蔵門内部・五重塔内部は非公開）",
+ hours:"境内24時間開放。本堂参拝：6:00〜17:00（10〜3月は6:30〜）",
+ access:"東京メトロ銀座線・都営浅草線「浅草駅」徒歩5分／東武スカイツリーライン「浅草駅」徒歩7分"
+},
+{id:2,icon:"⛩️",name:"増上寺",era:"江戸",eraGroup:"江戸",region:"東京",
+ lat:35.6561,lng:139.7492,loc:"東京都港区芝公園4丁目7番35号",
+ lead:"徳川将軍家の菩提寺。東京タワーを背に三解脱門がそびえる浄土宗大本山。",
+ desc:`増上寺は1393年（明徳4年）に浄土宗の酉誉聖聰上人によって開創されました。もとは日比谷にあったものが1598年（慶長3年）に徳川家康の命により現在地（芝）に移転。最盛期には境内約10万坪・堂塔48棟・子院120余院を有する大寺院でした。
+
+徳川将軍家の菩提寺として二代秀忠・六代家宣・七代家継・九代家重・十二代家慶・十四代家茂の6将軍が葬られています。「三解脱門（三門）」は1622年（元和8年）建立の国指定重要文化財で、「解脱」の意味を込めた三つの門（空・無相・無願）を象徴する、現存する数少ない江戸初期の建造物です。
+
+境内からは東京タワーを望むことができ、黒塗りの大殿と赤い鉄塔のコントラストは東京を代表する景観となっています。`,
+ links:[{l:"増上寺公式",u:"https://www.zojoji.or.jp/"},{l:"港区文化財情報",u:"https://www.city.minato.tokyo.jp/"}],
+ quiz:[
+  {q:"増上寺を開創した上人は誰？",c:["法然","親鸞","酉誉聖聰","一遍"],a:2,exp:"1393年、浄土宗の酉誉聰上人が開創しました。"},
+  {q:"増上寺が現在地（芝）に移転したのは何年？",c:["1568年","1598年","1615年","1635年"],a:1,exp:"1598年（慶長3年）、徳川家康の命によって移転しました。"},
+  {q:"三解脱門が建立されたのは何年？",c:["1600年","1622年","1650年","1700年"],a:1,exp:"1622年（元和8年）に建立された重要文化財です。"},
+  {q:"増上寺に葬られていない将軍は？",c:["二代秀忠","三代家光","六代家宣","十四代家茂"],a:1,exp:"三代家光は日光の輪王寺大猷院に祀られています。"},
+  {q:"最盛期の境内面積はおよそ何坪？",c:["1万坪","5万坪","10万坪","20万坪"],a:2,exp:"最盛期には約10万坪の広大な境内を誇りました。"}
+ ],
+ fee:"無料（境内・増上寺宝物展示室は有料：大人500円）",
+ hours:"境内6:00〜23:00（山門：9:00〜17:00）",
+ access:"都営三田線「芝公園駅」徒歩3分／都営浅草線・大江戸線「大門駅」徒歩7分"
+},
+{id:3,icon:"🏯",name:"日光東照宮",era:"江戸",eraGroup:"江戸",region:"栃木",
+ lat:36.7581,lng:139.5991,loc:"栃木県日光市山内",
+ lead:"徳川家康を祀る豪華絢爛な権現造の社殿群。世界遺産「日光の社寺」。",
+ desc:`日光東照宮は1617年（元和3年）、徳川家康の遺命を受けて二代将軍秀忠が創建した神社です。後に三代将軍家光が1634年（寛永11年）から約1年半をかけて大規模に造営し直し、150万人を超える職人が動員された現在の豪華絢爛な社殿群が完成しました。
+
+総漆塗り・金箔・極彩色で彩られた社殿群は「権現造」と呼ばれる建築様式を採用。「日暮し門」の異名を持つ陽明門は500を超える彫刻が施されています。「見ざる言わざる聞かざる」の三猿（神厩舎）、眠り猫など象徴的な彫刻も随所にあります。
+
+奥宮には家康の御霊廟（宝塔）があり、国宝・重要文化財を含む建造物群は1999年（平成11年）に「日光の社寺」としてユネスコ世界文化遺産に登録されました。`,
+ links:[{l:"日光東照宮公式",u:"https://www.toshogu.jp/"},{l:"栃木県観光物産協会",u:"https://www.tochigi-kankou.or.jp/"}],
+ quiz:[
+  {q:"日光東照宮が最初に創建されたのは何年？",c:["1603年","1615年","1617年","1635年"],a:2,exp:"家康の死後1年で1617年（元和3年）に秀忠が創建しました。"},
+  {q:"陽明門の別名は？",c:["眠り猫","日暮し門","随神門","楼門"],a:1,exp:"「一日中見ていても飽きない」ことから「日暮し門」と呼ばれます。"},
+  {q:"「見ざる言わざる聞かざる」の三猿がある建物は？",c:["陽明門","本地堂","神厩舎（馬小屋）","唐門"],a:2,exp:"神厩舎（馬小屋）の長押に三猿が彫られています。"},
+  {q:"「日光の社寺」が世界遺産登録されたのは？",c:["1993年","1999年","2004年","2010年"],a:1,exp:"1999年（平成11年）に世界文化遺産に登録されました。"},
+  {q:"現在の大規模な社殿群を造営した将軍は誰？",c:["二代秀忠","三代家光","四代家綱","五代綱吉"],a:1,exp:"三代将軍家光が1634年から現在の豪華な社殿群を完成させました。"}
+ ],
+ fee:"拝観料：大人1,300円・小中学生450円（社殿エリア）",
+ hours:"9:00〜17:00（11〜3月は〜16:00）",
+ access:"JR日光線・東武日光線「日光駅」からバス「神橋」下車徒歩10分"
+},
+{id:4,icon:"⛩️",name:"鶴岡八幡宮",era:"鎌倉",eraGroup:"鎌倉以前",region:"神奈川",
+ lat:35.3256,lng:139.5561,loc:"神奈川県鎌倉市雪ノ下2丁目1番31号",
+ lead:"源頼朝が鎌倉幕府の守護神として崇敬した、鎌倉の心。流鏑馬で知られる古社。",
+ desc:`鶴岡八幡宮は1063年（康平6年）、源頼義が由比の郷（現・材木座）に鶴岡若宮として勧請したことに始まります。1180年（治承4年）に源頼朝が鎌倉幕府を開くにあたり現在の地（雪ノ下）に遷座、政治の中心軸「若宮大路」を整備して幕府の守護神として奉斎しました。
+
+現在の社殿は1828年（文政11年）に11代将軍家斉の命により再建されたもので、鮮やかな朱色が丘の上に映えます。「段葛（だんかずら）」と呼ばれる参道は頼朝が妻・政子の安産を祈願して築造したと伝えられています。
+
+舞殿では静御前が源義経を慕う舞を披露したという逸話が残ります。毎年9月の例大祭では流鏑馬（やぶさめ）神事が行われます。`,
+ links:[{l:"鶴岡八幡宮公式",u:"https://www.hachimangu.or.jp/"},{l:"鎌倉市観光協会",u:"https://www.trip-kamakura.com/"}],
+ quiz:[
+  {q:"鶴岡八幡宮が現在地に遷座したのは誰の時代？",c:["源義家","源義朝","源頼朝","源義経"],a:2,exp:"1180年、源頼朝が鎌倉幕府を開くにあたり現在地に遷座しました。"},
+  {q:"「段葛」はどのような目的で築造された？",c:["戦の防衛","妻・政子の安産祈願","参拝者の利便","洪水防止"],a:1,exp:"源頼朝が妻・北条政子の安産を祈願して築造したと伝えられています。"},
+  {q:"現在の社殿はいつ再建されたか？",c:["1600年","1650年","1828年","1868年"],a:2,exp:"1828年（文政11年）、11代将軍家斉の命により再建されました。"},
+  {q:"舞殿で義経を慕い舞を披露した女性は？",c:["淀君","静御前","巴御前","北条政子"],a:1,exp:"静御前が頼朝の前で義経を慕う舞を披露したと伝えられています。"},
+  {q:"9月の例大祭で行われる伝統神事は？",c:["御輿渡御","流鏑馬（やぶさめ）","火渡り神事","雅楽奉納"],a:1,exp:"平安装束の射手が馬上から的を射る「流鏑馬」が行われます。"}
+ ],
+ fee:"境内無料。宝物殿：大人200円・小中学生100円",
+ hours:"境内24時間。宝物殿：9:00〜16:00",
+ access:"JR横須賀線・江ノ電「鎌倉駅」東口徒歩10分"
+},
+{id:5,icon:"🏛",name:"東京国立博物館 本館",era:"昭和初期",eraGroup:"昭和",region:"東京",
+ lat:35.7188,lng:139.7763,loc:"東京都台東区上野公園13番9号",
+ lead:"「帝冠様式」の威厳ある建物。日本最古・最大の博物館。国宝・重要文化財を一挙に収蔵。",
+ desc:`東京国立博物館（東博）は1872年（明治5年）に湯島聖堂での博覧会として開幕した日本最古の博物館です。現在の本館は1938年（昭和13年）に渡辺仁の設計により建設された「帝冠様式」の建物で、国の重要文化財に指定されています。
+
+「帝冠様式」とは洋風の鉄筋コンクリート建築に日本の瓦屋根を乗せた独特のスタイルで、昭和戦前期を代表する建築思想を体現しています。所蔵品は国宝89件・重要文化財649件を含む約12万件（2024年現在）と日本最大規模を誇り、縄文の土器から江戸の浮世絵まで日本文化の全史を俯瞰できます。
+
+法隆寺宝物館（谷口吉生設計）は水面と清澄な空間が美しく、建築ファンにも人気です。庭園には回遊式和風庭園と茶室が点在し、春は桜・秋は紅葉が楽しめます。`,
+ links:[{l:"東京国立博物館公式",u:"https://www.tnm.jp/"},{l:"コレクション検索",u:"https://webarchives.tnm.jp/"}],
+ quiz:[
+  {q:"東京国立博物館が最初に開館したのは何年？",c:["1868年","1872年","1889年","1900年"],a:1,exp:"1872年（明治5年）、湯島聖堂での博覧会として開幕しました。"},
+  {q:"現在の本館を設計した建築家は誰？",c:["辰野金吾","片山東熊","渡辺仁","伊東忠太"],a:2,exp:"渡辺仁の設計により1938年（昭和13年）に建設されました。"},
+  {q:"本館の建築様式は何か？",c:["ゴシック様式","帝冠様式","バロック様式","数寄屋様式"],a:1,exp:"洋風建築に日本の瓦屋根を乗せた「帝冠様式」が特徴です。"},
+  {q:"法隆寺宝物館を設計した建築家は？",c:["安藤忠雄","丹下健三","谷口吉生","磯崎新"],a:2,exp:"谷口吉生が設計した、水面と清澄な空間が美しい建物です。"},
+  {q:"東博の所蔵品数はおよそ何件？",c:["1万件","5万件","12万件","30万件"],a:2,exp:"国宝89件・重要文化財649件を含む約12万件を所蔵します。"}
+ ],
+ fee:"総合文化展：大人1,000円・大学生500円・高校生以下無料",
+ hours:"9:30〜17:00（金・土〜20:00）。月曜休館",
+ access:"JR「上野駅」公園口徒歩10分／東京メトロ銀座線・日比谷線「上野駅」徒歩15分"
+},
+{id:6,icon:"🏛",name:"赤坂離宮（迎賓館）",era:"明治",eraGroup:"明治",region:"東京",
+ lat:35.6795,lng:139.7344,loc:"東京都港区元赤坂2丁目1番1号",
+ lead:"日本唯一のネオ・バロック様式宮殿。2009年に昭和以降初の国宝指定建造物。",
+ desc:`迎賓館赤坂離宮は1909年（明治42年）に東宮御所（皇太子の御所）として竣工した宮殿建築です。宮廷建築家・片山東熊（かたやまとうくま）がヴェルサイユ宮殿を範として設計したネオ・バロック様式で、2009年（平成21年）に建造物として昭和以降では初めて国宝に指定されました。
+
+外壁には花崗岩が使用され、コリント式の大円柱が並ぶ正面ファサードは圧巻です。室内の「朝日の間」「彩鸞の間」「花鳥の間」「羽衣の間」はそれぞれ異なるテーマで装飾されており、朝日の間の天井には暁の女神・オーロラが描かれた壁画があります。
+
+1974年（昭和49年）に国際迎賓施設として改修され、G7サミット（1979年・2000年）など数々の国際会議の会場となりました。近年は通年一般公開が実施されています。`,
+ links:[{l:"迎賓館公式サイト",u:"https://www.geihinkan.go.jp/"},{l:"文化庁 国宝情報",u:"https://www.bunka.go.jp/"}],
+ quiz:[
+  {q:"迎賓館赤坂離宮が竣工したのは？",c:["1889年","1900年","1909年","1920年"],a:2,exp:"1909年（明治42年）に東宮御所として竣工しました。"},
+  {q:"設計を担当した宮廷建築家は誰？",c:["辰野金吾","片山東熊","曾禰達蔵","中條精一郎"],a:1,exp:"宮廷建築家・片山東熊（かたやまとうくま）の設計です。"},
+  {q:"建築様式は何か？",c:["ゴシック様式","ネオ・バロック様式","ロマネスク様式","アール・ヌーヴォー"],a:1,exp:"ヴェルサイユ宮殿を範とするネオ・バロック様式です。"},
+  {q:"国宝に指定されたのはいつ？",c:["1950年","1975年","1990年","2009年"],a:3,exp:"2009年に国宝指定。昭和以降の建造物では初の国宝指定でした。"},
+  {q:"「朝日の間」の天井に描かれているのは？",c:["龍の絵","暁の女神オーロラ","富士山","日本武尊"],a:1,exp:"暁の女神・オーロラが描かれた布張りキャンバスの壁画があります。"}
+ ],
+ fee:"本館内部：大人1,500円・大学生・高校生500円（要事前予約）。庭園のみ：300円",
+ hours:"10:00〜17:00（金・土〜20:00）。火曜・年末年始休み",
+ access:"JR中央線「四ツ谷駅」徒歩7分／東京メトロ丸ノ内線・南北線「四ツ谷駅」徒歩7分"
+},
+{id:7,icon:"🚂",name:"東京駅 丸の内駅舎",era:"大正",eraGroup:"大正",region:"東京",
+ lat:35.6812,lng:139.7671,loc:"東京都千代田区丸の内1丁目9番1号",
+ lead:"辰野金吾設計の赤レンガ駅舎。100年の歴史を刻む日本のターミナル。重要文化財。",
+ desc:`東京駅丸の内駅舎は1914年（大正3年）12月20日に開業した、日本を代表する鉄道駅舎です。「辰野式フリークラシック」とも呼ばれる独自様式を確立した辰野金吾の設計で、赤レンガ外壁に白石張りとドーム屋根を組み合わせた外観は日本近代建築の最高傑作の一つに数えられます。
+
+南北に約330mにわたる駅舎は完成当時「東洋一の大停車場」と称されました。北口・南口の2つのドームは1945年の東京大空襲で焼損し、戦後に五角形に簡略化されていましたが、2012年（平成24年）の保存・復元工事で開業当初の八角形ドームが蘇りました。
+
+復元工事は地下に免震装置を設置しながら外観を保持するという高難度のプロジェクトで、約5年・約500億円をかけて完成。現在は国の重要文化財に指定されています。`,
+ links:[{l:"東京ステーションギャラリー",u:"https://www.ejrcf.or.jp/gallery/"},{l:"JR東日本 東京駅",u:"https://www.jreast.co.jp/"}],
+ quiz:[
+  {q:"東京駅が開業したのは何年？",c:["1906年","1910年","1914年12月","1920年"],a:2,exp:"1914年（大正3年）12月20日に開業しました。"},
+  {q:"設計した建築家は誰？",c:["片山東熊","辰野金吾","コンドル","曾禰達蔵"],a:1,exp:"「辰野式フリークラシック」で知られる辰野金吾の設計です。"},
+  {q:"2012年の復元工事後、ドームの形状は？",c:["四角形","五角形","六角形","八角形"],a:3,exp:"2012年の復元工事で、開業当初の八角形ドームに戻りました。"},
+  {q:"復元工事にかかった費用はおよそ？",c:["約50億円","約200億円","約500億円","約1000億円"],a:2,exp:"約500億円、約5年をかけた大規模プロジェクトでした。"},
+  {q:"東京ステーションギャラリーはどこに設けられている？",c:["南ドーム内","北ドーム内","地下コンコース","駅前広場"],a:1,exp:"旧北ドームを活用した東京ステーションギャラリーが設けられています。"}
+ ],
+ fee:"駅構内は無料。東京ステーションギャラリー：企画展により異なる（大人1,200円〜）",
+ hours:"駅：終日。ギャラリー：11:00〜18:00（金〜20:00）。月曜休",
+ access:"JR各線「東京駅」丸の内口すぐ"
+},
+{id:8,icon:"🏛",name:"旧岩崎邸庭園",era:"明治",eraGroup:"明治",region:"東京",
+ lat:35.7094,lng:139.7690,loc:"東京都台東区池之端1丁目3番45号",
+ lead:"三菱岩崎家の明治邸宅。ジョサイア・コンドル設計のジャコビアン様式の洋館。",
+ desc:`旧岩崎邸庭園は三菱財閥創業者・岩崎弥太郎の長男、岩崎久弥の邸宅として1896年（明治29年）に建築されました。設計はジョサイア・コンドルによるもので、17世紀イギリスのジャコビアン様式を基調にスパニッシュモロッカン風の幾何学的装飾が組み合わされた独特のデザインが特徴です。
+
+コンドルは1877年（明治10年）に来日したイギリス人建築家で、工部大学校（東京大学工学部の前身）で辰野金吾ら多くの日本人建築家を育てた「近代建築の父」とも称される人物です。各室ごとに異なる装飾様式が施されており、食堂・応接室・客間にはルネサンス・ロマネスク・イスラム様式が折衷されています。
+
+現存する洋館・撞球室（ビリヤード場）・和館の一部は国の重要文化財に指定されています。`,
+ links:[{l:"東京都公園協会 旧岩崎邸",u:"https://www.tokyo-park.or.jp/park/format/index028.html"},{l:"文化財情報（文化庁）",u:"https://kunishitei.bunka.go.jp/"}],
+ quiz:[
+  {q:"旧岩崎邸の建築様式は？",c:["バロック様式","ジャコビアン様式","ゴシック様式","ルネサンス様式"],a:1,exp:"17世紀イギリスのジャコビアン様式を基調に設計されています。"},
+  {q:"旧岩崎邸を設計した建築家は？",c:["辰野金吾","片山東熊","ジョサイア・コンドル","フランク・ロイド・ライト"],a:2,exp:"「近代建築の父」とも呼ばれるジョサイア・コンドルの設計です。"},
+  {q:"コンドルが日本で教えた学校は？",c:["慶應義塾","工部大学校（東大工学部前身）","帝国大学","東京美術学校"],a:1,exp:"工部大学校で辰野金吾ら多くの日本人建築家を育てました。"},
+  {q:"撞球室とは何の部屋？",c:["台所","書斎","ビリヤード場","茶室"],a:2,exp:"撞球（どうきゅう）とはビリヤードのことです。"},
+  {q:"邸宅を建てた人物は誰か？",c:["岩崎弥太郎","岩崎弥之助","岩崎久弥","岩崎小弥太"],a:2,exp:"三菱創業者・岩崎弥太郎の長男、岩崎久弥が建築した邸宅です。"}
+ ],
+ fee:"入場料：大人400円・65歳以上200円・小中学生以下無料",
+ hours:"9:00〜17:00（入園は〜16:30）。月曜休（祝日の場合翌日）",
+ access:"東京メトロ千代田線「湯島駅」1番出口徒歩3分／東京メトロ銀座線「上野広小路駅」徒歩10分"
+},
+{id:9,icon:"🌉",name:"横浜赤レンガ倉庫",era:"明治〜大正",eraGroup:"明治",region:"神奈川",
+ lat:35.4436,lng:139.6421,loc:"神奈川県横浜市中区新港1丁目1番",
+ lead:"明治・大正の港湾倉庫が商業施設に変身。横浜みなとみらいのランドマーク。",
+ desc:`横浜赤レンガ倉庫は1号館（1913年・大正2年竣工）と2号館（1911年・明治44年竣工）からなる、旧横浜税関の保税倉庫群です。大蔵省臨時建築部の妻木頼黄（つまきよりなか）の設計によるもので、レンガと鉄骨を組み合わせた「耐火構造」は当時の最先端技術でした。
+
+妻木頼黄はアメリカで建築を学んだ後に帰国し、司法省庁舎（現・法務省旧本館）など多くの官庁建築を手掛けた明治の代表的建築家です。保税倉庫として長年機能した後、2002年（平成14年）に大規模改修を経て商業施設・イベントスペースとして生まれ変わりました。建物は国の重要文化財に指定されています。`,
+ links:[{l:"横浜赤レンガ倉庫公式",u:"https://www.yokohama-akarenga.jp/"},{l:"横浜市観光情報",u:"https://www.yokohamajapan.com/ja/"}],
+ quiz:[
+  {q:"2号館（古い方）の竣工年は？",c:["1905年","1911年","1913年","1920年"],a:1,exp:"2号館は1911年（明治44年）に竣工しました。"},
+  {q:"設計した建築家は誰？",c:["辰野金吾","コンドル","妻木頼黄","片山東熊"],a:2,exp:"大蔵省臨時建築部の妻木頼黄が設計しました。"},
+  {q:"もともとの用途は何？",c:["旅客ターミナル","保税倉庫","税関庁舎","造船所"],a:1,exp:"旧横浜税関の保税倉庫として建設されました。"},
+  {q:"商業施設として再オープンしたのはいつ？",c:["1992年","1998年","2002年","2008年"],a:2,exp:"2002年（平成14年）に商業施設としてリニューアルしました。"},
+  {q:"現在の文化財指定は？",c:["国宝","国の重要文化財","都道府県指定","登録有形文化財"],a:1,exp:"国の重要文化財に指定されています。"}
+ ],
+ fee:"無料（店舗・レストランは各自精算）",
+ hours:"1号館10:00〜18:00、2号館11:00〜20:00（金・土〜21:00）。第3火曜休",
+ access:"みなとみらい線「馬車道駅」6番出口徒歩6分／JR「桜木町駅」徒歩15分"
+},
+{id:10,icon:"⛩️",name:"明治神宮",era:"大正",eraGroup:"大正",region:"東京",
+ lat:35.6763,lng:139.6993,loc:"東京都渋谷区代々木神園町1番1号",
+ lead:"明治天皇・昭憲皇太后を祀る。70ヘクタールの鎮守の森に包まれた都心の聖域。",
+ desc:`明治神宮は1920年（大正9年）11月1日に創建された、明治天皇と昭憲皇太后を御祭神とする神社です。明治天皇崩御（1912年）の後、全国から奉仕した青年団を中心に11万本以上の樹木が奉納・植樹されました。100年以上を経て成熟した森は今では多様な生き物が生息する「都市の森」に育っています。
+
+本殿は1945年の戦災で焼失し、1958年（昭和33年）に再建されました。桧皮葺の神明造のシンプルな社殿は清廉な気品を湛えています。参道両側には全国から奉納された酒樽・ワイン樽が並び、農産物振興に熱心だった明治天皇の遺志を象徴しています。
+
+境内には宝物殿（重要文化財）・明治神宮ミュージアムがあり、毎年初詣には三が日で約300万人以上が訪れます。`,
+ links:[{l:"明治神宮公式",u:"https://www.meijijingu.or.jp/"},{l:"明治神宮外苑",u:"https://www.meijijingugaien.jp/"}],
+ quiz:[
+  {q:"明治神宮が創建されたのはいつ？",c:["1912年","1915年","1920年","1925年"],a:2,exp:"明治天皇崩御から8年後の1920年（大正9年）に創建されました。"},
+  {q:"創建時に植樹された木の本数はおよそ？",c:["1万本","5万本","11万本以上","30万本"],a:2,exp:"全国から11万本以上の樹木が奉納・植樹されました。"},
+  {q:"本殿が戦災後に再建されたのは？",c:["1946年","1952年","1958年","1965年"],a:2,exp:"1958年（昭和33年）に再建されました。"},
+  {q:"参道両側に並ぶ奉納物は？",c:["灯籠","幟旗","酒樽・ワイン樽","大絵馬"],a:2,exp:"農業振興を重んじた明治天皇の遺志を象徴する酒樽・ワイン樽が奉納されています。"},
+  {q:"神宮の森の面積はおよそ何ヘクタール？",c:["10ha","30ha","70ha","150ha"],a:2,exp:"約70ヘクタールの成熟した森が都心に広がっています。"}
+ ],
+ fee:"境内無料。宝物殿・ミュージアム：大人1,000円",
+ hours:"境内：日の出〜日没。宝物殿：10:00〜16:30。月曜休",
+ access:"JR山手線・東京メトロ「原宿駅」表参道口徒歩1分"
+},
+{id:11,icon:"⛩️",name:"根津神社",era:"江戸",eraGroup:"江戸",region:"東京",
+ lat:35.7211,lng:139.7631,loc:"東京都文京区根津1丁目28番9号",
+ lead:"五代将軍綱吉が造営した千本鳥居とツツジで名高い社。東京最大規模の江戸建築社殿群。",
+ desc:`根津神社は創建から1900年以上と伝わる古社で、現在の社殿は1705年（宝永2年）に五代将軍徳川綱吉が甥・徳松を世嗣と定めた際に造営したものです。本殿・幣殿・拝殿・唐門・西門・透塀・楼門がすべて揃って当初の形で残り、東京に現存する江戸建築として最大規模の社殿群として国の重要文化財に指定されています。
+
+「乙女稲荷神社」への参道に連なる「千本鳥居」は、赤い鳥居が数十基続くトンネル状の参道で写真スポットとしても人気です。毎年4〜5月の「文京つつじまつり」期間中、境内の「つつじ苑」に約100種3000株のツツジが一斉に咲き誇ります。`,
+ links:[{l:"根津神社公式",u:"https://www.nedujinja.or.jp/"},{l:"文京区観光情報",u:"https://www.kanko-bunkyo.jp/"}],
+ quiz:[
+  {q:"現在の社殿を造営した将軍は誰？",c:["三代家光","四代家綱","五代綱吉","六代家宣"],a:2,exp:"1705年（宝永2年）、五代将軍徳川綱吉が造営しました。"},
+  {q:"根津神社の境内で名物の花は？",c:["桜","梅","ツツジ","バラ"],a:2,exp:"毎年4〜5月の「文京つつじまつり」に約100種3000株のツツジが咲きます。"},
+  {q:"「乙女稲荷神社」への参道の名称は？",c:["千本松","千本竹","千本鳥居","千本灯籠"],a:2,exp:"赤い鳥居が連なる「千本鳥居」として知られる人気スポットです。"},
+  {q:"根津神社の社殿群の特徴として正しいのは？",c:["国内最古の社殿","江戸建築で東京最大規模","明治初期の建築","戦後に再建された"],a:1,exp:"東京に現存する江戸建築として最大規模の社殿群として重要文化財に指定されています。"},
+  {q:"かつて根津・千駄木に住んだ文豪は？",c:["芥川・太宰","森鴎外・夏目漱石","川端・三島","樋口一葉・与謝野晶子"],a:1,exp:"森鴎外と夏目漱石がこの地に住んでいたことが知られています。"}
+ ],
+ fee:"境内無料。つつじ苑（開花期のみ）：大人200円・子ども100円",
+ hours:"境内24時間開放",
+ access:"東京メトロ千代田線「根津駅」1番出口徒歩5分"
+},
+{id:12,icon:"🌿",name:"小石川後楽園",era:"江戸",eraGroup:"江戸",region:"東京",
+ lat:35.7069,lng:139.7489,loc:"東京都文京区後楽1丁目6番6号",
+ lead:"水戸徳川家の大名庭園。徳川光圀（水戸黄門）が整備した国の特別史跡・特別名勝。",
+ desc:`小石川後楽園は1629年（寛永6年）に水戸藩初代藩主・徳川頼房が江戸上屋敷の庭として造営を開始し、二代目・徳川光圀（水戸黄門）の代に完成した大名庭園です。「後楽」の名は北宋の政治家范仲淹の言葉「天下の楽しみに後れて楽しむ」から採られました。
+
+庭園内には中国・京都の名所を模した景勝が作られており、京都の渡月橋・中国杭州の西湖堤・慈悲の松林などが再現されています。「円月橋」は中国風の石造りアーチ橋で、水面に映る半円が満月のように見えることから命名されました。
+
+国の特別史跡・特別名勝の両方に指定されており、国の最高レベルの文化財として保護されています。`,
+ links:[{l:"小石川後楽園（東京都公園協会）",u:"https://www.tokyo-park.or.jp/park/format/index014.html"},{l:"文京区観光情報",u:"https://www.kanko-bunkyo.jp/"}],
+ quiz:[
+  {q:"小石川後楽園の造営を開始した水戸藩初代藩主は？",c:["徳川光圀","徳川頼房","徳川斉昭","徳川慶喜"],a:1,exp:"1629年（寛永6年）、水戸藩初代藩主・徳川頼房が造営を開始しました。"},
+  {q:"「後楽」の名の由来は？",c:["老後の楽しみ","范仲淹の言葉（天下の楽しみに後れて楽しむ）","水戸黄門の号","水戸の地名"],a:1,exp:"中国・北宋の政治家范仲淹の言葉から採られました。"},
+  {q:"「円月橋」の特徴は？",c:["木造太鼓橋","石造アーチ橋（水面に映る半円が満月に見える）","鉄製現代橋","竹製の橋"],a:1,exp:"中国風の石造りアーチ橋で、水面に映る半円が満月に見えます。"},
+  {q:"国の文化財指定として正しいのは？",c:["特別史跡のみ","特別名勝のみ","特別史跡・特別名勝の両方","世界遺産"],a:2,exp:"国の特別史跡・特別名勝の両方に指定されています。"},
+  {q:"庭内に再現されている中国の名所は？",c:["天安門","西湖堤（杭州）","万里の長城","黄山"],a:1,exp:"中国杭州の西湖堤が庭園内に再現されています。"}
+ ],
+ fee:"大人300円・65歳以上150円・小中学生150円",
+ hours:"9:00〜17:00（入園〜16:30）。月曜休（祝日の場合翌日）",
+ access:"JR総武線・都営三田線「水道橋駅」徒歩8分／都営大江戸線「飯田橋駅」徒歩10分"
+},
+{id:13,icon:"🏛",name:"築地本願寺",era:"昭和",eraGroup:"昭和",region:"東京",
+ lat:35.6657,lng:139.7730,loc:"東京都中央区築地3丁目15番1号",
+ lead:"古代インド様式を取り入れた異色の仏教建築。伊東忠太の傑作。重要文化財。",
+ desc:`築地本願寺は1617年（元和3年）に創建された浄土真宗本願寺派の寺院です。もともとは浅草横山町にありましたが、1657年（明暦3年）の「明暦の大火」（振袖火事）で焼失し、海を埋め立てた地（築地）に再建されました。
+
+現在の本堂は1934年（昭和9年）に完成した建物で、建築家・伊東忠太の設計による古代インド・オリエントの様式を取り入れた独特の外観が特徴です。伊東忠太は「法隆寺の源流はインドにある」という信念のもとアジアを旅して建築研究を行い、その成果をこの建物に結実させました。外壁には象や獅子の石像・円形ドームなど仏教発祥の地インドの建築要素が随所に見られます。
+
+本堂内にはパイプオルガンが設置されており、定期的にオルガンコンサートも開かれます。`,
+ links:[{l:"築地本願寺公式",u:"https://tsukijihongwanji.jp/"},{l:"伊東忠太 関連資料（早稲田大）",u:"https://www.waseda.jp/"}],
+ quiz:[
+  {q:"築地本願寺が現在地に移転した理由は？",c:["明暦の大火（振袖火事）で焼失","関東大震災","幕府の命令","檀家の移転"],a:0,exp:"1657年の「明暦の大火（振袖火事）」で焼失し、埋め立て地（築地）に再建されました。"},
+  {q:"現在の本堂を設計した建築家は？",c:["辰野金吾","伊東忠太","コンドル","岡田信一郎"],a:1,exp:"アジアの建築様式を研究した建築家・伊東忠太の設計です。"},
+  {q:"建築に取り入れられた様式は？",c:["ゴシック様式","古代インド・オリエント様式","ロマネスク様式","バロック様式"],a:1,exp:"仏教発祥の地インド・オリエントの建築様式を取り入れています。"},
+  {q:"「築地」という地名の由来は？",c:["築港の地","海を埋め立て（築き地）た土地","建物を築いた地","城を築いた地"],a:1,exp:"海を埋め立てて造った土地であることから「築地（つきじ）」と呼ばれます。"},
+  {q:"本堂内に設置されている珍しい楽器は？",c:["三味線","琴","パイプオルガン","チェンバロ"],a:2,exp:"仏教寺院には珍しいパイプオルガンが設置されています。"}
+ ],
+ fee:"境内無料",
+ hours:"境内6:00〜22:00（本堂内：9:00〜17:00）",
+ access:"東京メトロ日比谷線「築地駅」1番出口徒歩3分"
+},
+{id:14,icon:"🏯",name:"川越城 本丸御殿",era:"江戸",eraGroup:"江戸",region:"埼玉",
+ lat:35.9247,lng:139.4849,loc:"埼玉県川越市郭町2丁目13番1号",
+ lead:"全国に2例しかない現存本丸御殿の一つ。「小江戸」川越の象徴。",
+ desc:`川越城本丸御殿は1848年（嘉永元年）に築かれた川越藩主の居館（御殿）の一部で、全国に現存する本丸御殿としては川越城と高知城のみという希少な遺構です。川越城は1457年（長禄元年）に太田道真・道灌父子によって築かれ、関東の重要拠点として機能しました。
+
+現存する本丸御殿（玄関・大広間・移築された家老詰所）は国の重要文化財に指定されています。内部には式台・上段の間・書院などが復元展示されており、江戸時代の武家政治の空間を体感できます。
+
+川越（小江戸）の市街には蔵造りの町並みが残る「一番街」があり、1893年（明治26年）の大火後に再建された蔵造り建築群は重要文化財に指定されています。`,
+ links:[{l:"川越市 本丸御殿",u:"https://www.city.kawagoe.saitama.jp/"},{l:"川越観光",u:"https://kawagoe-kanko.jp/"}],
+ quiz:[
+  {q:"川越城を築いたのは誰？",c:["北条氏康","上杉謙信","太田道真・道灌父子","徳川家康"],a:2,exp:"1457年（長禄元年）に太田道真・道灌父子によって築かれました。"},
+  {q:"全国で本丸御殿が現存する城はどれか（川越城以外）？",c:["熊本城","姫路城","高知城","江戸城"],a:2,exp:"全国で本丸御殿が現存するのは川越城と高知城のみです。"},
+  {q:"川越蔵造り一番街の蔵が再建されたのは？",c:["1868年","1877年","1893年","1912年"],a:2,exp:"1893年（明治26年）の大火後に蔵造り商家が再建されました。"},
+  {q:"川越の別名は？",c:["西の京","小江戸","関東の奈良","埼玉の浅草"],a:1,exp:"江戸の面影を残すことから「小江戸」と呼ばれています。"},
+  {q:"喜多院が持つ重要文化財の特徴は？",c:["江戸城の天守閣","江戸城から移築された客殿・書院","将軍の墓所","外国人居留地の建物"],a:1,exp:"江戸城から移築された客殿・書院・台所・山門などが重要文化財です。"}
+ ],
+ fee:"本丸御殿：大人100円・高校生50円・中学生以下無料",
+ hours:"9:00〜17:00（入館〜16:30）。月曜休（祝日の場合翌日）",
+ access:"西武新宿線「本川越駅」徒歩15分／JR川越線・東武東上線「川越駅」徒歩20分"
+},
+{id:15,icon:"🌸",name:"谷中・根津・千駄木（谷根千）",era:"江戸〜明治",eraGroup:"明治",region:"東京",
+ lat:35.7235,lng:139.7621,loc:"東京都台東区谷中・文京区根津・千駄木エリア",
+ lead:"関東大震災・東京大空襲を奇跡的に免れた江戸の下町。徳川慶喜の墓がある谷中霊園も必見。",
+ desc:`谷中（やなか）を中心とした「谷根千」エリアは、幕末から明治にかけての下町の街並みが奇跡的に残る地区です。関東大震災（1923年）でも東京大空襲（1945年）でも大きな被害を受けなかったため、江戸〜明治の建築・街路・寺院群がそのまま今に伝わっています。
+
+谷中霊園は1872年（明治5年）に開設された東京都管轄の公営墓地で、徳川最後の将軍・慶喜、洋画家・高橋由一、横山大観など多くの著名人が眠っています。毎年3〜4月には桜通りに桜並木が咲き誇ります。
+
+谷中銀座商店街は昭和の商店街の雰囲気を残す人気スポット。路地散策・銭湯・古民家カフェなど「昭和レトロ」体験が楽しめます。`,
+ links:[{l:"台東区 谷中観光",u:"https://www.taitocity.net/taito/sightseeing/"},{l:"谷根千まちづくり",u:"http://www.yanesen.net/"}],
+ quiz:[
+  {q:"谷中霊園が開設されたのはいつ？",c:["1858年","1868年","1872年","1888年"],a:2,exp:"1872年（明治5年）に東京都が開設した公営墓地です。"},
+  {q:"谷中霊園に眠る「最後の将軍」は誰？",c:["徳川家茂","徳川慶喜","徳川家達","徳川厚"],a:1,exp:"徳川15代将軍・徳川慶喜が谷中霊園に眠っています。"},
+  {q:"「谷根千」の「根」は何の略？",c:["根岸","根津","根方","根室"],a:1,exp:"谷中・根津・千駄木を合わせた「谷根千」エリアです。"},
+  {q:"谷中銀座商店街への入口となる階段の名称は？",c:["夕やけだんだん","あかつき坂","もみじ坂","けやき通り"],a:0,exp:"「夕やけだんだん」と呼ばれる階段を下ると谷中銀座商店街が続きます。"},
+  {q:"谷中エリアが江戸の街並みを今に残せた最大の理由は？",c:["強力な保存運動","関東大震災・東京大空襲の被害が少なかった","開発計画が中止","世界遺産に登録"],a:1,exp:"関東大震災・東京大空襲の被害が少なかったため、江戸〜明治の建築が残りました。"}
+ ],
+ fee:"散策無料。谷中霊園：無料",
+ hours:"散策自由（24時間）",
+ access:"JR山手線・京浜東北線「日暮里駅」徒歩5分／東京メトロ千代田線「千駄木駅」徒歩5分"
+},
+{id:16,icon:"🚂",name:"旧新橋停車場",era:"明治",eraGroup:"明治",region:"東京",
+ lat:35.6641,lng:139.7618,loc:"東京都港区東新橋1丁目5番3号",
+ lead:"日本初の鉄道ターミナル跡地。発掘遺構の上に忠実復元された建物が立つ。",
+ desc:`旧新橋停車場は1872年（明治5年）10月14日、日本初の鉄道（新橋〜横浜間）が開通した際の始発駅です。設計はアメリカ人建築家リチャード・ブリジェンスによる石造りのターミナルビルでした。
+
+当初の停車場は1914年（大正3年）の東京駅開業に伴い「汐留貨物駅」となり、1986年（昭和61年）に廃止。1990年代の汐留再開発時に地下から明治時代の遺構（プラットフォームの石敷き・基礎）が発見されました。
+
+その遺構を保存・公開しつつ、2003年（平成15年）に明治時代の停車場を忠実に復元した建物が完成。1階展示室には遺構がガラス越しに見学でき、建物外部には「0哩標識」の復元があります。`,
+ links:[{l:"旧新橋停車場公式",u:"https://www.ejrcf.or.jp/shinbashi/"},{l:"鉄道博物館（大宮）",u:"https://www.railway-museum.jp/"}],
+ quiz:[
+  {q:"日本初の鉄道が開通したのはいつ？",c:["1868年","1872年","1880年","1895年"],a:1,exp:"1872年（明治5年）10月14日、新橋〜横浜間に日本初の鉄道が開通しました。"},
+  {q:"旧新橋停車場を設計した建築家は誰？",c:["コンドル","ブリジェンス","ボアン","エンデ"],a:1,exp:"アメリカ人建築家リチャード・ブリジェンスが設計しました。"},
+  {q:"東京駅開業後、この停車場はどうなったか？",c:["取り壊し","美術館に転用","汐留貨物駅として機能","上野駅に移転"],a:2,exp:"1914年の東京駅開業後、「汐留貨物駅」として機能し1986年に廃止されました。"},
+  {q:"地下遺構が発掘されたのはいつ？",c:["1970年代","1980年代","1990年代","2000年代"],a:2,exp:"1990年代の汐留再開発時に発掘されました。"},
+  {q:"建物外部にある記念碑は何？",c:["1哩標識","0哩（マイル）標識","鉄道発祥の地碑","開国記念碑"],a:1,exp:"日本鉄道の起点を示す「0哩（マイル）標識」が復元されています。"}
+ ],
+ fee:"無料",
+ hours:"10:00〜17:00（入館〜16:30）。月曜休（祝日の場合翌日）",
+ access:"都営大江戸線・浅草線「汐留駅」徒歩2分／JR・東京メトロ「新橋駅」徒歩7分"
+},
+{id:17,icon:"🏡",name:"横浜山手西洋館群",era:"大正〜昭和",eraGroup:"大正",region:"神奈川",
+ lat:35.4397,lng:139.6503,loc:"神奈川県横浜市中区山手町エリア",
+ lead:"外国人居留地の洋館が今も点在する丘。無料公開の洋館で幕末〜大正を体験。",
+ desc:`横浜山手は1859年（安政6年）の横浜開港時に外国人居留地として指定された丘の地区です。英国・フランス・アメリカなど各国の外交官・商人・宣教師らが居住し、その生活様式を反映した洋館群が建ち並びました。
+
+主な施設として、ブラフ18番館（1927年・オーストラリア人住宅）、エリスマン邸（1926年・スイス人絹糸商の住宅、建築家アントニン・レーモンド設計）、べーリック・ホール（1930年・英国人実業家住宅）、外交官の家（1910年）などがあります。
+
+これらは年間を通じて無料公開されており、クリスマスシーズン「山手西洋館 世界のクリスマス」では各館が世界各地のクリスマス様式でデコレーションされます。`,
+ links:[{l:"横浜山手西洋館公式",u:"https://www.hama-midorinokyokai.or.jp/yamate-seiyoukan/"},{l:"横浜市観光情報",u:"https://www.yokohamajapan.com/ja/"}],
+ quiz:[
+  {q:"横浜が開港したのは何年？",c:["1853年","1856年","1859年","1868年"],a:2,exp:"1859年（安政6年）に横浜が開港し、山手に外国人居留地が設けられました。"},
+  {q:"エリスマン邸を設計した建築家は？",c:["フランク・ロイド・ライト","アントニン・レーモンド","コンドル","ブリジェンス"],a:1,exp:"チェコ出身の建築家アントニン・レーモンドが設計しました。"},
+  {q:"関東大震災後に建てられた最大規模の洋館は？",c:["エリスマン邸","外交官の家","べーリック・ホール","山手234番館"],a:2,exp:"1930年建設のべーリック・ホールが、関東大震災後の洋館中で最大規模です。"},
+  {q:"クリスマスイベントのテーマは？",c:["山手の夜","世界のクリスマス","白い季節","星の館"],a:1,exp:"「山手西洋館 世界のクリスマス」として各館が世界各地のクリスマスを演出します。"},
+  {q:"一般公開の料金は？",c:["有料（一律800円）","有料（施設ごと）","基本無料","完全予約制"],a:2,exp:"山手西洋館は年間を通じて無料で公開されています。"}
+ ],
+ fee:"各館無料",
+ hours:"9:30〜17:00（館により異なる）。月曜休（祝日の場合翌日）",
+ access:"みなとみらい線「元町・中華街駅」6番出口徒歩10分"
+},
+{id:18,icon:"🏛",name:"国会議事堂",era:"昭和",eraGroup:"昭和",region:"東京",
+ lat:35.6759,lng:139.7453,loc:"東京都千代田区永田町1丁目7番1号",
+ lead:"日本の立法府。完成まで約30年。帝冠様式の石造宮殿で日本民主主義の象徴。",
+ desc:`国会議事堂は1936年（昭和11年）11月7日に竣工した日本の立法府の建物で、衆議院・参議院の議場を擁します。構想から完成まで約30年を要し、延べ約250万人の労働者が建設に携わったとされます。中央に高さ65.45mの八角形塔がそびえるピラミッド形の屋根が特徴的です。
+
+外壁には100種類以上の石材（花崗岩・大理石など）が使用されており、そのほとんどが国産石材です。
+
+議事堂内部は一般公開されており、中央広間には板垣退助・大隈重信・伊藤博文の銅像があります（4つ目の台座は現在も空白で、将来の偉業ある人物を待つとも言われています）。竣工当時「東洋一の壮大な建物」とも評されました。`,
+ links:[{l:"衆議院 議事堂見学",u:"https://www.shugiin.go.jp/"},{l:"参議院 議事堂見学",u:"https://www.sangiin.go.jp/"}],
+ quiz:[
+  {q:"国会議事堂が竣工したのはいつ？",c:["1920年","1928年","1936年","1945年"],a:2,exp:"1936年（昭和11年）11月7日に竣工しました。"},
+  {q:"中央塔の高さは？",c:["45m","55m","65.45m","75m"],a:2,exp:"中央の八角形の塔は高さ65.45mです。"},
+  {q:"中央広間にない銅像は次のうちどれ？",c:["板垣退助","大隈重信","伊藤博文","西郷隆盛"],a:3,exp:"中央広間には板垣・大隈・伊藤の3像があり、4台座目は空白のままです。"},
+  {q:"完成まで要した年数はおよそ？",c:["10年","20年","30年","40年"],a:2,exp:"構想から完成まで約30年、延べ約250万人が建設に関わりました。"},
+  {q:"外壁の石材はどこ産が主体か？",c:["海外輸入","国産石材が主体","半々","大部分が合成材"],a:1,exp:"「国産材料で」という強い意志から、100種類以上の国産石材が使用されました。"}
+ ],
+ fee:"無料（衆議院・参議院の見学参観。事前申込不要・先着順）",
+ hours:"参観：月〜金8:00〜17:00（衆議院は〜16:00）。土日祝・国会開会中は要確認",
+ access:"東京メトロ丸ノ内線・千代田線「国会議事堂前駅」徒歩1分"
+},
+{id:19,icon:"🏯",name:"皇居（江戸城跡）",era:"江戸〜明治",eraGroup:"江戸以前",region:"東京",
+ lat:35.6852,lng:139.7528,loc:"東京都千代田区千代田1番1号",
+ lead:"徳川幕府の本城・江戸城跡。二重橋と松の緑が往時の格を伝える。",
+ desc:`現在の皇居はかつて江戸幕府の本城・江戸城があった地です。江戸城は1457年（長禄元年）に太田道灌が築いたとされ、1590年（天正18年）に徳川家康が入城、1603年の幕府開設後に大規模整備が行われました。最盛期の江戸城は日本最大の城郭でした。
+
+天守閣は1638年（寛永15年）に竣工した五重六階の建物でしたが、1657年の「明暦の大火」で焼失し、以後再建されませんでした。現在の皇居には当時の石垣・堀・遺構が各所に残り、「天守台」の石垣が今も現存します。
+
+「二重橋」として知られる正門石橋と正門鉄橋が並ぶ景観は日本を代表する名所です。皇居東御苑（旧本丸跡）は一般公開されており、本丸大奥跡・天守台・諸門などを見学できます。`,
+ links:[{l:"宮内庁 皇居東御苑",u:"https://www.kunaicho.go.jp/event/higashigyoen/higashigyoen.html"},{l:"国土交通省 皇居外苑",u:"https://www.ktr.mlit.go.jp/kokyoguaien/"}],
+ quiz:[
+  {q:"江戸城を最初に築いたのは誰？",c:["徳川家康","北条早雲","太田道灌","足利義満"],a:2,exp:"1457年（長禄元年）に太田道灌が築いたとされます。"},
+  {q:"江戸城の天守閣が焼失した火事の名は？",c:["振袖火事（明暦の大火）","浜火事","桶町火事","池之端火事"],a:0,exp:"1657年の「明暦の大火（振袖火事）」で天守閣が焼失しました。"},
+  {q:"明治天皇が東京に移ったのはいつ？",c:["1867年","1869年","1872年","1880年"],a:1,exp:"1869年（明治2年）に明治天皇が東京へ行幸し、江戸城が皇居となりました。"},
+  {q:"「二重橋」として一般に呼ばれる橋の正式名称は？",c:["正門鉄橋","正門石橋","二の丸橋","鍛冶橋"],a:1,exp:"正式には「正門石橋」が「二重橋」と一般に呼ばれています。"},
+  {q:"皇居東御苑として公開されているのはどこの跡？",c:["西の丸","二の丸","旧本丸","旧三の丸"],a:2,exp:"旧本丸・二の丸・三の丸跡が皇居東御苑として公開されています。"}
+ ],
+ fee:"皇居東御苑：無料（入園証が必要）",
+ hours:"皇居東御苑：9:00〜16:30（11〜2月〜16:00）。月曜・金曜休。外苑：終日",
+ access:"東京メトロ各線「大手町駅」徒歩5分／JR「東京駅」丸の内口徒歩15分"
+},
+{id:20,icon:"⛩️",name:"上野東照宮",era:"江戸",eraGroup:"江戸",region:"東京",
+ lat:35.7165,lng:139.7734,loc:"東京都台東区上野公園9番88号",
+ lead:"上野の森に現存する江戸初期の権現造。「金色殿」と牡丹苑が美しい。",
+ desc:`上野東照宮は1627年（寛永4年）に天海僧正と藤堂高虎が、家康の遺命を受けて創建した神社です。徳川家康・吉宗・慶喜を主祭神とし、関東大震災・東京大空襲を免れて現存しており、国の重要文化財に指定されています。
+
+現在の社殿は1651年（慶安4年）に三代将軍家光が造営したもので、金箔を多用した黒漆塗りの社殿は「金色殿」とも呼ばれ、極彩色の彫刻・透かし彫りが施されています。参道の石灯籠は諸大名から奉納されたもので合計50基が並びます。
+
+境内の「牡丹苑」は江戸時代から続く名苑で、春（4〜5月）は約200種・500株の牡丹、冬（12〜2月）は寒牡丹が楽しめます。`,
+ links:[{l:"上野東照宮公式",u:"https://www.uenotoshogu.com/"},{l:"上野観光連盟",u:"https://www.ueno.or.jp/"}],
+ quiz:[
+  {q:"上野東照宮の創建者は？",c:["徳川秀忠と家光","天海僧正と藤堂高虎","本多正信と酒井忠世","松平信綱と堀田正盛"],a:1,exp:"天海僧正と藤堂高虎が家康の遺命を受けて1627年に創建しました。"},
+  {q:"現在の社殿を造営したのは誰？",c:["二代秀忠","三代家光","四代家綱","五代綱吉"],a:1,exp:"1651年（慶安4年）、三代将軍家光が造営しました。"},
+  {q:"社殿の別名は？",c:["白色殿","朱色殿","金色殿","黒漆殿"],a:2,exp:"金箔を多用した黒漆塗りの社殿は「金色殿」とも呼ばれます。"},
+  {q:"参道の石灯籠は合計何基？",c:["18基","30基","50基","100基"],a:2,exp:"諸大名から奉納された石灯籠が合計50基並んでいます。"},
+  {q:"牡丹苑の冬の花は？",c:["梅","水仙","寒牡丹","山茶花"],a:2,exp:"冬（12〜2月）には寒牡丹が楽しめます。"}
+ ],
+ fee:"境内無料。ぼたん苑（開花期のみ）：大人1,000円・小中学生500円",
+ hours:"9:00〜16:30（ぼたん苑開花期は時間延長あり）",
+ access:"JR山手線「上野駅」公園口徒歩10分／東京メトロ銀座線「上野駅」徒歩15分"
+},
+{id:21,icon:"🏛",name:"旧古河庭園",era:"大正",eraGroup:"大正",region:"東京",
+ lat:35.7535,lng:139.7363,loc:"東京都北区西ケ原1丁目27番39号",
+ lead:"コンドル晩年の洋館とバラ園・小川治兵衛作の日本庭園が共存する大正の名園。",
+ desc:`旧古河庭園は1917年（大正6年）頃、古河財閥2代目・古河虎之助侯爵の邸宅として整備された庭園で、国の名勝に指定されています。洋館はジョサイア・コンドルの晩年の設計（1919年頃）で、チューダー様式を基調とした石造の落ち着いた外観が緑の丘の上に際立ちます。
+
+洋館前のバラ園は春（5月）と秋（10〜11月）に約100種200株のバラが咲き誇ります。庭園の下段には近代造園の第一人者・7代目小川治兵衛が作庭した日本庭園が広がり、池・枯滝・灯籠などが配された回遊式庭園となっています。
+
+洋館からバラ園、さらに下段の日本庭園へと立体的に展開する空間構成が旧古河庭園の最大の魅力で、和洋折衷の大正期上流階級の文化を今に伝えています。`,
+ links:[{l:"旧古河庭園（東京都公園協会）",u:"https://www.tokyo-park.or.jp/park/format/index031.html"},{l:"北区文化財",u:"https://www.city.kita.tokyo.jp/"}],
+ quiz:[
+  {q:"旧古河庭園の洋館を設計したのは誰？",c:["コンドル","辰野金吾","片山東熊","曾禰達蔵"],a:0,exp:"ジョサイア・コンドルの晩年の作品で、チューダー様式の洋館です。"},
+  {q:"バラが見頃の時期は？",c:["春（5月）のみ","秋（10〜11月）のみ","春と秋の2回","夏（7月）"],a:2,exp:"春（5月）と秋（10〜11月）の2回、約100種200株のバラが咲きます。"},
+  {q:"日本庭園を作庭した造園家は誰？",c:["夢窓疎石","小堀遠州","小川治兵衛（7代目）","重森三玲"],a:2,exp:"近代造園の第一人者・7代目小川治兵衛が作庭しました。"},
+  {q:"庭園の国の指定は？",c:["世界遺産","国の名勝","国の特別名勝","国の特別史跡"],a:1,exp:"国の名勝に指定されています。"},
+  {q:"古河虎之助は古河財閥の何代目当主か？",c:["初代","2代","3代","4代"],a:1,exp:"古河財閥の2代目・古河虎之助侯爵の邸宅です。"}
+ ],
+ fee:"庭園入園料：大人150円・65歳以上70円・小中学生無料。洋館見学（要予約）：別途",
+ hours:"9:00〜17:00（入園〜16:30）。月曜休（祝日の場合翌日）",
+ access:"JR京浜東北線「上中里駅」徒歩7分／東京メトロ南北線「西ケ原駅」徒歩7分"
+},
+{id:22,icon:"🏛",name:"東京大学 安田講堂",era:"大正",eraGroup:"大正",region:"東京",
+ lat:35.7126,lng:139.7606,loc:"東京都文京区本郷7丁目3番1号",
+ lead:"内田ゴシックの代表作。東大のシンボル。昭和の学生運動の舞台でもある。",
+ desc:`東京大学安田講堂（正式名称：大学院法学政治学研究科・法学部1番大講義室）は1925年（大正14年）に竣工した東京大学本郷キャンパスの象徴的建物です。内田祥三・岸田日出刀によるゴシック様式で、赤茶色のタイル張り外観が特徴的です。
+
+実業家・安田善次郎の寄付によって建設されたことから「安田講堂」と呼ばれます。正面の時計塔は高さ約37mで、本郷キャンパスの赤レンガ建築群のシンボルとなっています。
+
+1968〜1969年の東大闘争（安田講堂闘争）では学生運動家が籠城し、機動隊との攻防戦が繰り広げられました。この事件が原因で1969年（昭和44年）の東大入試は中止されました。
+
+内田祥三が手がけた東大本郷キャンパスの統一ゴシック様式建築群を「内田ゴシック」と呼びます。`,
+ links:[{l:"東京大学公式",u:"https://www.u-tokyo.ac.jp/"},{l:"安田講堂 見学情報",u:"https://www.u-tokyo.ac.jp/campuslife/01_02_01.html"}],
+ quiz:[
+  {q:"安田講堂が竣工したのはいつ？",c:["1910年","1920年","1925年","1930年"],a:2,exp:"1925年（大正14年）に竣工しました。"},
+  {q:"「安田」という名前の由来は？",c:["設計者の名前","寄付した実業家・安田善次郎","大学の設立者","周辺の地名"],a:1,exp:"実業家・安田善次郎の寄付によって建設されたことから「安田講堂」と呼ばれます。"},
+  {q:"安田講堂の建築様式は？",c:["バロック様式","帝冠様式","ゴシック様式","ルネサンス様式"],a:2,exp:"ゴシック様式を基調とした赤茶色タイル張りの建物です。"},
+  {q:"1969年に東大入試が中止された原因は？",c:["予算不足","安田講堂闘争（東大紛争）","天災","インフルエンザ"],a:1,exp:"1968〜69年の東大闘争（安田講堂籠城事件）が原因で1969年の入試が中止されました。"},
+  {q:"「内田ゴシック」とは？",c:["内田祥三が手がけた東大本郷キャンパスのゴシック様式建築群","明治期の和洋折衷様式","江戸時代の書院造","昭和モダニズム様式"],a:0,exp:"内田祥三が手がけた東大本郷キャンパスの統一ゴシック様式建築群を「内田ゴシック」と呼びます。"}
+ ],
+ fee:"キャンパス見学無料。安田講堂内部は原則非公開（年数回の見学ツアーあり）",
+ hours:"キャンパス：終日開放（原則）",
+ access:"東京メトロ丸ノ内線「本郷三丁目駅」徒歩8分／JR中央・総武線「御茶ノ水駅」徒歩15分"
+},
+{id:23,icon:"🗿",name:"鎌倉大仏（高徳院）",era:"鎌倉",eraGroup:"鎌倉以前",region:"神奈川",
+ lat:35.3167,lng:139.5354,loc:"神奈川県鎌倉市長谷4丁目2番28号",
+ lead:"鎌倉時代に鋳造された高さ約11.3mの阿弥陀如来坐像。国宝。露座の大仏として知られる。",
+ desc:`鎌倉大仏（正式名称：銅造阿弥陀如来坐像）は1252年（建長4年）頃に鋳造が始まり、数年をかけて完成した高さ約11.3m（台座含め約13.3m）の青銅製坐像です。国宝に指定されており、東大寺の奈良大仏と並ぶ日本を代表する大仏です。
+
+大仏は当初大仏殿に安置されていましたが、1334年と1369年の台風、さらに1498年（明応7年）の大地震・津波によって大仏殿が崩壊し、以後露座のままになりました。「露坐の大仏」として約600年間野外に鎮座し続けています。
+
+像の内部は空洞で、内部見学（有料）も可能です。耳の長さ約1.9m、目の幅約1m。浄土宗・高徳院が管理する寺院の境内に位置し、長谷寺と並ぶ長谷エリアの二大観光地です。`,
+ links:[{l:"高徳院（鎌倉大仏）公式",u:"https://www.kotoku-in.jp/"},{l:"鎌倉市観光",u:"https://www.trip-kamakura.com/"}],
+ quiz:[
+  {q:"鎌倉大仏の高さは台座を除いておよそ何m？",c:["7.3m","9.5m","11.3m","14.7m"],a:2,exp:"台座を除いた像高は約11.3m、台座含めると約13.3mです。"},
+  {q:"大仏が「露座」になった主な原因は？",c:["意図的な設計","大仏殿の崩壊（台風・地震・津波）","火災","経費削減"],a:1,exp:"台風や1498年の明応地震・津波によって大仏殿が崩壊し、露座になりました。"},
+  {q:"鎌倉大仏の鋳造が始まったのは何年頃？",c:["1185年","1203年","1252年","1300年"],a:2,exp:"1252年（建長4年）頃に鋳造が始まりました。"},
+  {q:"鎌倉大仏を管理するのは？",c:["鎌倉市","高徳院（浄土宗）","円覚寺","鶴岡八幡宮"],a:1,exp:"浄土宗の寺院・高徳院が管理しています。"},
+  {q:"与謝野晶子の有名な歌で大仏をどのように詠んだか？",c:["「古りにける」","「哀れなる」","「美男におはす」","「大いなる」"],a:2,exp:"「かまくらや みほとけなれど 釈迦牟尼は 美男におはす 夏木立かな」と詠みました。"}
+ ],
+ fee:"大人300円・小学生150円（大仏胎内拝観は別途50円）",
+ hours:"8:00〜17:30（10〜3月〜17:00）。年中無休",
+ access:"江ノ電「長谷駅」徒歩7分"
+},
+{id:24,icon:"🌿",name:"浜離宮恩賜庭園",era:"江戸〜明治",eraGroup:"江戸",region:"東京",
+ lat:35.6600,lng:139.7628,loc:"東京都中央区浜離宮庭園1番1号",
+ lead:"海水が出入りする「潮入りの池」を持つ将軍家の名庭。国の特別史跡・特別名勝。",
+ desc:`浜離宮恩賜庭園は1654年（承応3年）に徳川家綱の弟・松平綱重が江戸湾を埋め立てて造営した庭園が起源です。後に将軍家の別邸「浜御殿」となり、6代・家宣が大規模整備を行って現在の姿の基礎を作りました。
+
+最大の特徴は「潮入りの池」で、東京湾の海水が庭園内の池に干満によって出入りする仕組みになっています。東京に残る唯一の潮入り回遊式庭園で、国の特別名勝・特別史跡の両方に指定されています。
+
+将軍が鴨猟を楽しんだ「鴨場」が2箇所あり、往時の面影を残しています。中島の御茶屋からは隅田川・東京湾・レインボーブリッジを望む絶景が広がります。`,
+ links:[{l:"浜離宮恩賜庭園（東京都公園協会）",u:"https://www.tokyo-park.or.jp/park/format/index007.html"},{l:"中央区観光情報",u:"https://www.chuo-kanko.or.jp/"}],
+ quiz:[
+  {q:"浜離宮の庭園を最初に造ったのは誰？",c:["徳川家康","松平綱重","徳川家宣","徳川吉宗"],a:1,exp:"1654年（承応3年）に家綱の弟・松平綱重が造営しました。"},
+  {q:"「潮入りの池」の特徴は？",c:["塩水を張った池","東京湾の海水が干満で出入りする池","人工の滝がある池","蓮が咲く池"],a:1,exp:"東京湾の海水が干満によって出入りする仕組みで、東京に唯一残る潮入り庭園です。"},
+  {q:"国の文化財指定として正しいのは？",c:["特別史跡のみ","特別名勝のみ","特別史跡・特別名勝の両方","世界遺産"],a:2,exp:"国の特別名勝・特別史跡の両方に指定されています。"},
+  {q:"将軍が楽しんだ「鴨場」での活動は？",c:["鷹狩り","鴨猟","鹿狩り","魚釣り"],a:1,exp:"鴨猟を行う「鴨場」が2箇所あり、将軍の娯楽の場でした。"},
+  {q:"春の浜離宮の名物の組み合わせは？",c:["梅と桜","菜の花と桜","藤と桜","牡丹と桜"],a:1,exp:"1〜3月の菜の花と3〜4月の桜が重なる時期が特に人気です。"}
+ ],
+ fee:"大人300円・65歳以上150円・小中学生150円",
+ hours:"9:00〜17:00（入園〜16:30）。年中無休",
+ access:"都営大江戸線「汐留駅」徒歩7分／JR「新橋駅」徒歩15分"
+},
+{id:25,icon:"🏛",name:"旧前田侯爵邸（駒場公園）",era:"昭和初期",eraGroup:"昭和",region:"東京",
+ lat:35.6576,lng:139.6843,loc:"東京都目黒区駒場4丁目3番55号",
+ lead:"加賀百万石の末裔・前田家の昭和洋館。駒場の緑に包まれたチューダー様式の名邸。",
+ desc:`駒場公園内に残る旧前田家本邸は、加賀藩（現・石川県）百万石の大名家・前田家の16代当主・前田利為侯爵の邸宅として1929年（昭和4年）に竣工した洋館です。高橋禎太郎の設計によるチューダー様式で、格調ある外観が特徴です。
+
+洋館内部には大食堂・応接室・書斎など当時の華族生活を伝える空間が保存されており、英国ルネサンス様式の暖炉・寄木細工の床・漆喰の天井装飾など細部の装飾が豪華です。
+
+和館は数寄屋造りを基調とし、茶室・庭園と連続する空間構成が特徴的。太平洋戦争後は米軍に接収され、その後東京都が取得。1967年（昭和42年）に駒場公園として開園し、現在は東京都指定有形文化財として洋館・和館ともに一般公開されています。`,
+ links:[{l:"東京都公園協会 駒場公園",u:"https://www.tokyo-park.or.jp/park/format/index036.html"},{l:"目黒区文化財",u:"https://www.city.meguro.tokyo.jp/"}],
+ quiz:[
+  {q:"旧前田家洋館の竣工年は？",c:["1920年","1925年","1929年","1935年"],a:2,exp:"1929年（昭和4年）に竣工しました。"},
+  {q:"前田家はもとどこの大名家か？",c:["薩摩藩","長州藩","水戸藩","加賀藩（百万石）"],a:3,exp:"加賀藩（現・石川県）百万石の大名家・前田家です。"},
+  {q:"洋館の建築様式は？",c:["チューダー様式","バロック様式","ゴシック様式","ロマネスク様式"],a:0,exp:"高橋禎太郎設計によるチューダー様式の洋館です。"},
+  {q:"戦後にこの建物を接収したのは？",c:["ソ連軍","英国軍","米軍","国連"],a:2,exp:"太平洋戦争後は米軍に接収されました。"},
+  {q:"現在の文化財指定は？",c:["国宝","国の重要文化財","東京都指定有形文化財","区指定"],a:2,exp:"現在は東京都指定有形文化財として公開されています。"}
+ ],
+ fee:"洋館・和館見学無料",
+ hours:"9:00〜17:00（入館〜16:30）。月曜休（祝日の場合翌日）",
+ access:"京王井の頭線「駒場東大前駅」徒歩7分"
+},
+{id:26,icon:"🏛",name:"法務省旧本館（赤れんが棟）",era:"明治",eraGroup:"明治",region:"東京",
+ lat:35.6762,lng:139.7501,loc:"東京都千代田区霞が関1丁目1番1号",
+ lead:"ドイツ人建築家エンデ＆ベックマン設計の明治官庁建築。霞が関の赤レンガ。",
+ desc:`法務省旧本館（赤れんが棟）は1895年（明治28年）に竣工したドイツ・ルネサンス様式の赤レンガ建築で、設計はドイツ人建築家のエンデ＆ベックマン（Hermann Ende・Wilhelm Böckmann）によるものです。
+
+この建物は明治政府の「官庁集中計画」（明治20年代）に基づいて整備された官庁建築群の一つです。関東大震災・東京大空襲を生き残り、1994年（平成6年）の復元工事で創建時に近い姿に戻りました。国の重要文化財に指定されており、毎年秋には「赤れんが棟見学会」が開催されて内部が一般公開されます。`,
+ links:[{l:"法務省 赤れんが棟",u:"https://www.moj.go.jp/"},{l:"千代田区文化財情報",u:"https://www.city.chiyoda.lg.jp/"}],
+ quiz:[
+  {q:"法務省旧本館が竣工したのはいつ？",c:["1880年","1890年","1895年","1910年"],a:2,exp:"1895年（明治28年）に竣工しました。"},
+  {q:"設計したのは誰？",c:["コンドル","辰野金吾","エンデ＆ベックマン（ドイツ人建築家）","妻木頼黄"],a:2,exp:"ドイツ人建築家エンデ＆ベックマンが設計しました。"},
+  {q:"建物の建築様式は？",c:["フランスバロック","ドイツ・ルネサンス様式","イギリスゴシック","帝冠様式"],a:1,exp:"ドイツ・ルネサンス様式の赤レンガ建築です。"},
+  {q:"霞が関官庁街の整備計画の名称は？",c:["帝都復興計画","首都整備計画","官庁集中計画","明治都市計画"],a:2,exp:"明治20年代に進められた「官庁集中計画」です。"},
+  {q:"1994年の工事の目的は？",c:["増築","全面建替","創建時に近い姿への復元","耐震補強のみ"],a:2,exp:"1994年（平成6年）の復元工事で創建時に近い外観に戻りました。"}
+ ],
+ fee:"無料（毎年秋の見学会のみ内部公開）",
+ hours:"外観見学は随時可。内部：年1回の秋の一般公開時のみ",
+ access:"東京メトロ丸ノ内線・日比谷線「霞ヶ関駅」A1出口すぐ"
+},
+{id:27,icon:"🏘",name:"江戸東京たてもの園",era:"江戸〜昭和",eraGroup:"昭和",region:"東京",
+ lat:35.7095,lng:139.5549,loc:"東京都小金井市桜町3丁目7番1号",
+ lead:"東京各地から移築した30棟の歴史的建造物が集まる野外博物館。ジブリ作品のモデルの一つ。",
+ desc:`江戸東京たてもの園は1993年（平成5年）に開園した都立の野外博物館で、東京各地から移築・復原された江戸時代から昭和中期にかけての30棟以上の歴史的建造物が小金井公園内に公開されています。
+
+展示建物は西ゾーン（武家・農家等）・センターゾーン・東ゾーン（商家・居酒屋等の下町）の三つに分かれており、特に東ゾーンは映画『千と千尋の神隠し』（スタジオジブリ）のモデルの一つとなったことで知られています。
+
+移築された建物には高橋是清邸（二・二六事件で暗殺された首相の邸宅）・農家・商家（子宝湯・小寺醤油店）・洋風建築（デ・ラランデ邸）など多彩なジャンルが含まれます。子宝湯（銭湯）など昭和の生活空間を体感できる建物も人気です。`,
+ links:[{l:"江戸東京たてもの園公式",u:"https://www.tatemonoen.jp/"},{l:"スタジオジブリ公式",u:"https://www.ghibli.jp/"}],
+ quiz:[
+  {q:"江戸東京たてもの園が開園したのはいつ？",c:["1985年","1989年","1993年","2000年"],a:2,exp:"1993年（平成5年）に開園しました。"},
+  {q:"ジブリ映画のモデルとなったゾーンは？",c:["西ゾーン（武家・農家）","センターゾーン","東ゾーン（下町商店街）","全域"],a:2,exp:"江戸・明治・大正・昭和の下町商店街を再現した東ゾーンがモデルとなりました。"},
+  {q:"高橋是清邸はどの事件と関係するか？",c:["関東大震災","二・二六事件","五・一五事件","太平洋戦争開戦"],a:1,exp:"1936年（昭和11年）の「二・二六事件」で高橋是清首相がこの邸宅で暗殺されました。"},
+  {q:"「子宝湯」とはどのような施設？",c:["産院","小料理屋","銭湯","子育て支援センター"],a:2,exp:"昭和の銭湯で、内部の什器まで再現されたタイムスリップ体験ができます。"},
+  {q:"たてもの園がある公園は？",c:["井の頭公園","昭和記念公園","小金井公園","砧公園"],a:2,exp:"東京都小金井市の小金井公園内に設けられています。"}
+ ],
+ fee:"大人400円・65歳以上200円・小中学生200円",
+ hours:"9:30〜17:30（入館〜17:00）。月曜休（祝日の場合翌日）",
+ access:"JR中央線「武蔵小金井駅」北口バス「たてもの園前」下車すぐ"
+},
+{id:28,icon:"🌉",name:"永代橋・清洲橋",era:"大正〜昭和",eraGroup:"昭和",region:"東京",
+ lat:35.6795,lng:139.7947,loc:"東京都江東区・中央区（隅田川）",
+ lead:"関東大震災復興の橋梁美学。「武骨な男」永代橋と「優雅な女」清洲橋。ともに重要文化財。",
+ desc:`永代橋と清洲橋は1923年（大正12年）の関東大震災で崩壊した橋の復興事業として建設された、隅田川を渡る鋼鉄製の橋梁です。いずれも国の重要文化財に指定され、震災復興橋梁として最高の評価を受けています。
+
+永代橋（1926年竣工）は鋼製ゲルバー式バスケットハンドル型アーチ橋で、全長約185m。「武骨な男性的な橋」とも評されます。ドイツのマンハイム市のルートヴィヒ橋をモデルにしたとも言われ、完成当時「東洋一の橋」と称されました。
+
+清洲橋（1928年竣工）は鋼製自碇式吊橋（セルフアンカード型）で、優雅な曲線を描くサスペンションケーブルが「女性的な橋」と対比されます。毎年夏の「隅田川花火大会」では両橋が花火の中に浮かび上がる幻想的な光景が広がります。`,
+ links:[{l:"東京都建設局 永代橋・清洲橋",u:"https://www.kensetsu.metro.tokyo.lg.jp/"},{l:"墨田区観光サイト",u:"https://visit-sumida.jp/"}],
+ quiz:[
+  {q:"永代橋・清洲橋が建設された背景は？",c:["明治の文明開化","関東大震災の復興","東京オリンピック","戦後復興"],a:1,exp:"1923年の関東大震災で崩壊した橋の復興事業として建設されました。"},
+  {q:"永代橋が竣工したのはいつ？",c:["1923年","1926年","1928年","1932年"],a:1,exp:"永代橋は1926年（大正15年）に竣工しました。"},
+  {q:"清洲橋の橋梁形式は？",c:["アーチ橋","トラス橋","自碇式吊橋","斜張橋"],a:2,exp:"清洲橋は鋼製自碇式吊橋（セルフアンカード型）です。"},
+  {q:"永代橋のモデルとなったドイツの橋は？",c:["ケルン吊橋","マンハイムのルートヴィヒ橋","ハンブルク橋","ミュンヘン橋"],a:1,exp:"ドイツのマンハイム市のルートヴィヒ橋をモデルにしたとも言われます。"},
+  {q:"毎年夏にこの橋周辺で行われる有名な行事は？",c:["東京マラソン","隅田川花火大会","東京湾大感謝祭","東京開港祭"],a:1,exp:"隅田川花火大会で両橋が花火の中に浮かぶ幻想的な光景が広がります。"}
+ ],
+ fee:"橋上見学無料（橋は終日通行可）",
+ hours:"24時間（橋）",
+ access:"【永代橋】都営大江戸線「門前仲町駅」徒歩5分／【清洲橋】都営大江戸線「清澄白河駅」徒歩5分"
+},
+{id:29,icon:"⛩️",name:"日光 輪王寺・大猷院",era:"江戸",eraGroup:"江戸",region:"栃木",
+ lat:36.7563,lng:139.5970,loc:"栃木県日光市山内2300",
+ lead:"三代将軍家光の壮麗な霊廟・大猷院。日光三山を守護する天台宗の門跡寺院。世界遺産。",
+ desc:`輪王寺（りんのうじ）は766年（天平神護2年）に勝道上人が日光山に開山した「四本龍寺」を起源とする天台宗の門跡寺院です。三仏堂（さんぶつどう）・大猷院廟を中心とする壮大な伽藍を有します。
+
+三仏堂は日光山最大の建物（重要文化財）で、高さ4〜4.3mの千手観音・阿弥陀如来・馬頭観音の三体の金色大仏が安置されています。
+
+大猷院（だいゆういん）は三代将軍・徳川家光（1604〜1651年）の廟所で1653年（承応2年）に完成しました。家光の遺命「家康公（東照宮）を見守る位置に葬れ」に従い、権現造の精緻な彫刻・金箔が随所に施されています。国宝・重要文化財が多数あり、「日光の社寺」として1999年に世界文化遺産登録されています。`,
+ links:[{l:"輪王寺公式",u:"https://www.rinnoji.or.jp/"},{l:"日光観光協会",u:"https://www.nikko-kankou.org/"}],
+ quiz:[
+  {q:"輪王寺の開山者は誰？",c:["空海","最澄","勝道上人","円仁"],a:2,exp:"766年（天平神護2年）に勝道上人が開山しました。"},
+  {q:"三仏堂に安置された三体の仏は？",c:["釈迦・薬師・阿弥陀","千手観音・阿弥陀如来・馬頭観音","文殊・普賢・観音","不動・毘沙門・弁財天"],a:1,exp:"千手観音・阿弥陀如来・馬頭観音の三体の金色大仏が安置されています。"},
+  {q:"大猷院に祀られているのは誰？",c:["徳川家康","徳川秀忠","徳川家光","徳川家綱"],a:2,exp:"三代将軍・徳川家光の廟所（霊廟）です。"},
+  {q:"「東照宮より規模を小さく」という家光の遺命の意図は？",c:["節約のため","家康への敬意の表れ","設計が難しかったから","資材不足"],a:1,exp:"家康（東照宮）を見守る立場として規模を抑えたのは家康への敬意の表れです。"},
+  {q:"世界遺産登録の年は？",c:["1995年","1999年","2005年","2010年"],a:1,exp:"1999年（平成11年）に「日光の社寺」として世界文化遺産に登録されました。"}
+ ],
+ fee:"境内無料。大猷院：大人550円・小中学生250円。三仏堂：大人400円・小中学生200円",
+ hours:"8:00〜17:00（11〜3月〜16:00）",
+ access:"JR日光線・東武日光線「日光駅」からバス「西参道」下車徒歩3分"
+},
+{id:30,icon:"🌸",name:"渋沢栄一邸跡（飛鳥山）",era:"明治〜大正",eraGroup:"明治",region:"東京",
+ lat:35.7576,lng:139.7376,loc:"東京都北区西ケ原2丁目16番1号",
+ lead:"日本資本主義の父・渋沢栄一が晩年を過ごした邸宅跡。新一万円札の肖像。",
+ desc:`飛鳥山（あすかやま）は北区に位置する、渋沢栄一（1840〜1931年）が1879年（明治12年）から亡くなるまで約50年間を過ごした邸宅地です。現在は「渋沢史料館」（1978年開館）と国の重要文化財建造物「青淵文庫（せいえんぶんこ）」「晩香廬（ばんこうろ）」が公開されています。
+
+渋沢栄一は1840年に埼玉県深谷市の農民の子として生まれ、明治維新後は大蔵省に入省。1873年（明治6年）に官を辞して第一国立銀行（現・みずほ銀行の前身）を設立し、生涯で約500の企業・銀行・学校・社会事業の設立・育成に関わった「日本資本主義の父」です。
+
+2021年（令和3年）に新一万円札の肖像に採用されました。飛鳥山は江戸時代から桜の名所でもあります。`,
+ links:[{l:"渋沢史料館公式",u:"https://www.shibusawa.or.jp/museum/"},{l:"北区 飛鳥山博物館",u:"https://www.city.kita.tokyo.jp/d-asukayama/"}],
+ quiz:[
+  {q:"渋沢栄一が飛鳥山に邸宅を構えたのはいつ？",c:["1868年","1873年","1879年","1890年"],a:2,exp:"1879年（明治12年）から亡くなる1931年まで約50年間過ごしました。"},
+  {q:"渋沢栄一が設立した銀行は？",c:["日本銀行","第一国立銀行（現・みずほ銀行の前身）","横浜正金銀行","三井銀行"],a:1,exp:"1873年に第一国立銀行（現・みずほ銀行の前身）を設立しました。"},
+  {q:"青淵文庫が建てられたのはいつ？",c:["1900年","1910年","1917年","1925年"],a:3,exp:"1925年（大正14年）、渋沢の80歳・喜寿を記念して建てられました。"},
+  {q:"渋沢栄一の肖像が採用された紙幣は？",c:["千円札","五千円札","一万円札","二千円札"],a:2,exp:"2021年（令和3年）から新一万円札の肖像に採用されています。"},
+  {q:"渋沢栄一の出身地は？",c:["東京都","神奈川県","埼玉県（深谷市）","千葉県"],a:2,exp:"現・埼玉県深谷市（旧・武蔵国血洗島村）の農民の家に生まれました。"}
+ ],
+ fee:"庭園（飛鳥山公園）：無料。渋沢史料館：大人300円・大学生200円・高校生以下無料",
+ hours:"史料館：10:00〜17:00（入館〜16:30）。月曜休（祝日の場合翌日）",
+ access:"JR京浜東北線・都電荒川線「王子駅」徒歩5分／東京メトロ南北線「西ケ原駅」徒歩8分"
+}
+];
+
+
+
+function deg2rad(d){return d*Math.PI/180;}
+
+
+function distM(lat1,lng1,lat2,lng2){
+  const R=6371000,dLat=deg2rad(lat2-lat1),dLng=deg2rad(lng2-lng1);
+  const a=Math.sin(dLat/2)**2+Math.cos(deg2rad(lat1))*Math.cos(deg2rad(lat2))*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+
+function isNearby(s){return userLat!==null&&distM(userLat,userLng,s.lat,s.lng)<=GPS_RADIUS;}
+
+
+function loadState(){try{const s=localStorage.getItem('kanto_rally_v3');if(s)Object.assign(STATE,JSON.parse(s));}catch(e){}}
+
+
+function saveState(){try{localStorage.setItem('kanto_rally_v3',JSON.stringify(STATE));}catch(e){}}
+
+
+function startGPS(){
+  if(!navigator.geolocation){setGPSBar('off','GPS非対応ブラウザです');return;}
+  gpsWatchId=navigator.geolocation.watchPosition(pos=>{
+    userLat=pos.coords.latitude; userLng=pos.coords.longitude;
+    const acc=Math.round(pos.coords.accuracy);
+    setGPSBar('on',`📍 GPS取得中（精度±${acc}m）`);
+    checkNearbyAll();
+    updateMainMapUser();
+    updateModalGPSInfo();
+  }, err=>{
+    setGPSBar('off','GPS：ブラウザの位置情報を許可してください');
+  },{enableHighAccuracy:true,maximumAge:8000,timeout:20000});
+}
+
+
+function setGPSBar(state,txt){
+  const bar=document.getElementById('gps-bar');
+  bar.className='gps-bar'+(state==='off'?' off':'');
+  document.getElementById('gps-txt').textContent=txt;
+}
+
+
+function checkNearbyAll(){
+  if(userLat===null)return;
+  const nowNear=new Set();
+  SPOTS.forEach(s=>{
+    const d=distM(userLat,userLng,s.lat,s.lng);
+    if(d<=GPS_RADIUS) nowNear.add(s.id);
+  });
+
+  // 新たに近づいたスポット → トースト + 自動スタンプ
+  nowNear.forEach(id=>{
+    if(!lastNear.has(id)){
+      const s=SPOTS.find(x=>x.id===id);
+      if(!STATE.visited[id]){
+        // 自動スタンプ付与
+        grantStamp(id);
+        showToast(`⛩️ ${s.name}に到着！朱印を押しました！`);
+      } else {
+        showToast(`📍 ${s.name}の近くです`);
+      }
+    }
+  });
+  lastNear=nowNear;
+  renderCards();
+  updateMainMapMarkers();
+}
+
+
+function updateModalGPSInfo(){
+  if(!currentSpot)return;
+  const info=document.getElementById('gps-info');
+  const near=isNearby(currentSpot);
+  near?info.classList.add('show'):info.classList.remove('show');
+  updateStampStatus();
+}
+
+
+function grantStamp(id){
+  if(STATE.visited[id])return;
+  STATE.visited[id]=true; saveState();
+  // 朱印帳セルを押印済みに
+  const cell=document.getElementById(`stamp-${id}`);
+  if(cell)cell.classList.add('stamped');
+  updateHeader();
+  updateMainMapMarkers();
+  renderCards();
+  // モーダルが開いていてそのスポットなら状態表示を更新
+  if(currentSpot&&currentSpot.id===id){
+    updateStampStatus();
+    // モーダル内のgps-infoも非表示に
+    const info=document.getElementById('gps-info');
+    if(info)info.classList.remove('show');
+  }
+}
+
+
+function updateStampStatus(){
+  if(!currentSpot)return;
+  const id=currentSpot.id;
+  const el=document.getElementById('stamp-status');
+  if(!el)return;
+  if(STATE.visited[id]){
+    el.innerHTML='<div class="stamp-status-done">✅ 朱印済み — このスポットは訪問完了です</div>';
+  } else if(userLat===null){
+    el.innerHTML='<div class="stamp-status-wait">📡 GPS取得中…<br><small>位置情報を許可するとスポット到着時に自動でスタンプが押されます</small></div>';
+  } else if(isNearby(currentSpot)){
+    el.innerHTML='<div class="stamp-status-near">📍 現地に到達！スタンプを自動で押しています…</div>';
+  } else {
+    const d=Math.round(distM(userLat,userLng,currentSpot.lat,currentSpot.lng));
+    el.innerHTML=`<div class="stamp-status-wait">🗺 現地まで約 <b>${d >= 1000 ? (d/1000).toFixed(1)+'km' : d+'m'}</b><br><small>スポットから50m以内に近づくと自動でスタンプが押されます</small></div>`;
+  }
+}
+
+
+function showToast(msg){
+  const t=document.getElementById('nearby-toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),4000);
+}
+
+
+function buildFilters(){
+  const regions=[...new Set(SPOTS.map(s=>s.region))];
+  const rRow=document.getElementById('filter-region');
+  rRow.innerHTML=`<button class="fc on" onclick="setRegion('全て',this)">全て</button>`;
+  regions.forEach(r=>{rRow.innerHTML+=`<button class="fc" onclick="setRegion('${r}',this)">${r}</button>`;});
+
+  const eRow=document.getElementById('filter-era');
+  ERA_GROUPS.forEach(e=>{
+    const label=e==='全て'?'全時代':e;
+    eRow.innerHTML+=`<button class="fc era-filter${e==='全て'?' on':''}" onclick="setEra('${e}',this)">${label}</button>`;
+  });
+}
+
+
+function setRegion(r,btn){
+  filterRegion=r;
+  document.querySelectorAll('#filter-region .fc').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); renderCards();
+}
+
+
+function setEra(e,btn){
+  filterEra=e;
+  document.querySelectorAll('#filter-era .fc').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); renderCards();
+}
+
+
+function filterCards(v){searchVal=v.toLowerCase();renderCards();}
+
+
+function renderCards(){
+  const grid=document.getElementById('spot-grid');
+  grid.innerHTML='';
+  SPOTS.filter(s=>{
+    const mR=filterRegion==='全て'||s.region===filterRegion;
+    const mE=filterEra==='全て'||s.eraGroup===filterEra;
+    const mS=!searchVal||s.name.includes(searchVal)||s.region.includes(searchVal)||s.era.includes(searchVal);
+    return mR&&mE&&mS;
+  }).forEach(s=>grid.appendChild(makeCard(s)));
+}
+
+
+function makeCard(s){
+  const near=isNearby(s);
+  const div=document.createElement('div');
+  div.className='spot-card'+(STATE.visited[s.id]?' visited':'')+(near?' nearby':'');
+  div.onclick=()=>openModal(s.id);
+  div.innerHTML=`
+    ${near&&!STATE.visited[s.id]?'<div class="nearby-badge">📍 GPS到達</div>':''}
+    <div class="sc-top">
+      <span class="sc-num">No.${String(s.id).padStart(2,'0')}</span>
+      <div class="sc-name">${s.icon} ${s.name}</div>
+    </div>
+    <div class="sc-era">🗓 ${s.era} ／ <span style="color:${ERA_COLORS[s.eraGroup]||'#888'}">${s.eraGroup}</span></div>
+    <div class="sc-lead">${s.lead}</div>
+    <div class="sc-badges">
+      <span class="badge badge-region">${s.region}</span>
+      ${STATE.visited[s.id]?'<span class="badge badge-visited">🔴 朱印済</span>':''}
+      ${STATE.quizDone[s.id]?'<span class="badge badge-quiz">✨ 謎解完了</span>':''}
+      ${near?'<span class="badge badge-near">📍 近くにいます</span>':''}
+    </div>`;
+  return div;
+}
+
+
+function buildStampGrid(){
+  const grid=document.getElementById('stamp-grid');
+  grid.innerHTML='';
+  SPOTS.forEach(s=>{
+    const cell=document.createElement('div');
+    cell.className='stamp-cell'+(STATE.visited[s.id]?' stamped':'');
+    cell.id=`stamp-${s.id}`;
+    cell.onclick=()=>openModal(s.id);
+    cell.innerHTML=`<div class="stamp-ico">${s.icon}</div><div class="stamp-lbl">${s.name}</div>`;
+    grid.appendChild(cell);
+  });
+}
+
+
+function buildProgress(){
+  const total=SPOTS.length;
+  const visited=Object.keys(STATE.visited).length;
+  const quizDone=Object.keys(STATE.quizDone).length;
+  document.getElementById('pb-visit').style.width=Math.round(visited/total*100)+'%';
+  document.getElementById('pb-quiz').style.width=Math.round(quizDone/total*100)+'%';
+  document.getElementById('pl-visit').textContent=`${visited} / ${total}`;
+  document.getElementById('pl-quiz').textContent=`${quizDone} / ${total}`;
+
+  const eraMap={};
+  SPOTS.forEach(s=>{
+    if(!eraMap[s.eraGroup])eraMap[s.eraGroup]={total:0,done:0};
+    eraMap[s.eraGroup].total++;
+    if(STATE.visited[s.id])eraMap[s.eraGroup].done++;
+  });
+  const rows=document.getElementById('era-rows');
+  rows.innerHTML='';
+  ERA_GROUPS.slice(1).forEach(eg=>{
+    if(!eraMap[eg])return;
+    rows.innerHTML+=`<div class="era-row"><div class="era-dot" style="background:${ERA_COLORS[eg]||'#999'}"></div><div class="era-name">${eg}</div><div class="era-cnt">${eraMap[eg].done}/${eraMap[eg].total} 訪問</div></div>`;
+  });
+
+  const ACHS=[
+    {ico:'⛩️',name:'最初の一歩',unlock:visited>=1},
+    {ico:'🗺',name:'中堅旅人\n（10スポット）',unlock:visited>=10},
+    {ico:'🏆',name:'完全制覇\n（30スポット）',unlock:visited>=30},
+    {ico:'🧩',name:'謎解き初挑戦',unlock:quizDone>=1},
+    {ico:'🔥',name:'謎解き猛者\n（15スポット）',unlock:quizDone>=15},
+    {ico:'👑',name:'謎解き王者\n（30スポット）',unlock:quizDone>=30},
+  ];
+  const ag=document.getElementById('ach-grid');ag.innerHTML='';
+  ACHS.forEach(a=>{ag.innerHTML+=`<div class="ach-card ${a.unlock?'unlocked':''}"><div class="ach-ico">${a.unlock?a.ico:'🔒'}</div><div class="ach-name">${a.name}</div></div>`;});
+}
+
+
+function updateHeader(){
+  document.getElementById('hc-visited').textContent=Object.keys(STATE.visited).length;
+  document.getElementById('hc-quiz').textContent=Object.keys(STATE.quizDone).length;
+}
+
+
+function openModal(id){
+  currentSpot=SPOTS.find(s=>s.id===id);
+  quizIdx=0;
+  document.getElementById('m-era').textContent='🗓 '+currentSpot.era;
+  document.getElementById('m-title').textContent=currentSpot.icon+'　'+currentSpot.name;
+  document.getElementById('m-loc').textContent='📍 '+currentSpot.loc;
+  document.getElementById('m-desc').textContent=currentSpot.desc;
+  document.getElementById('m-links').innerHTML=currentSpot.links.map(l=>`<a class="ext-link" href="${l.u}" target="_blank" rel="noopener">🔗 ${l.l}</a>`).join('');
+
+  updateStampStatus();
+  updateModalGPSInfo();
+  document.getElementById('quiz-result-area').innerHTML='';
+  renderQuiz();
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(()=>initModalMap(currentSpot),180);
+}
+
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  wipeDiv(document.getElementById('modal-map'));
+}
+
+
+function overlayClick(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
+
+
+function renderQuiz(){
+  if(!currentSpot)return;
+  const qs=currentSpot.quiz, q=qs[quizIdx];
+  document.getElementById('q-num').textContent=`問 ${quizIdx+1} / ${qs.length}`;
+
+  const dots=document.getElementById('q-dots'); dots.innerHTML='';
+  qs.forEach((_,i)=>{
+    const d=document.createElement('div');
+    const ans=STATE.quizAnswers[currentSpot.id];
+    let cls='qdot';
+    if(i===quizIdx)cls+=' current';
+    else if(ans&&ans[i]!==undefined)cls+=(ans[i]===qs[i].a)?' done':' wrong';
+    d.className=cls; dots.appendChild(d);
+  });
+
+  document.getElementById('q-text').textContent=q.q;
+  const choices=document.getElementById('q-choices'); choices.innerHTML='';
+  const ans=STATE.quizAnswers[currentSpot.id];
+  const done=ans&&ans[quizIdx]!==undefined;
+  q.c.forEach((c,ci)=>{
+    const btn=document.createElement('button'); btn.className='qchoice';
+    btn.textContent='　'+['①','②','③','④'][ci]+'　'+c;
+    if(done){btn.disabled=true;if(ci===q.a)btn.classList.add('correct');else if(ci===ans[quizIdx])btn.classList.add('wrong');}
+    btn.onclick=()=>answerQuiz(ci); choices.appendChild(btn);
+  });
+
+  const fb=document.getElementById('q-fb');
+  if(done){const ok=ans[quizIdx]===q.a;fb.className='quiz-fb '+(ok?'correct':'wrong');fb.textContent=(ok?'✅ 正解！ ':'❌ 不正解。')+q.exp;}
+  else{fb.className='quiz-fb';fb.textContent='';}
+
+  document.getElementById('q-prev').disabled=quizIdx===0;
+  const nxt=document.getElementById('q-next');
+  nxt.disabled=quizIdx===qs.length-1;
+  nxt.textContent=quizIdx===qs.length-1?'最後の問':'次の問 ▶';
+  checkQuizComplete();
+}
+
+
+function answerQuiz(ci){
+  if(!STATE.quizAnswers[currentSpot.id])STATE.quizAnswers[currentSpot.id]={};
+  if(STATE.quizAnswers[currentSpot.id][quizIdx]!==undefined)return;
+  STATE.quizAnswers[currentSpot.id][quizIdx]=ci; saveState(); renderQuiz();
+}
+
+
+function quizMove(dir){quizIdx=Math.max(0,Math.min(currentSpot.quiz.length-1,quizIdx+dir));renderQuiz();}
+
+
+function checkQuizComplete(){
+  const qs=currentSpot.quiz, ans=STATE.quizAnswers[currentSpot.id];
+  if(!ans||!qs.every((_,i)=>ans[i]!==undefined))return;
+  if(!STATE.quizDone[currentSpot.id]){
+    STATE.quizDone[currentSpot.id]=true;
+    STATE.quizScores[currentSpot.id]=qs.filter((q,i)=>ans[i]===q.a).length;
+    saveState(); updateHeader();
+  }
+  const score=STATE.quizScores[currentSpot.id];
+  const ra=document.getElementById('quiz-result-area');
+  if(!ra.innerHTML)ra.innerHTML=`<div class="quiz-result"><div class="qr-score">🎉 ${score} / ${qs.length} 正解</div><div class="qr-sub">${score===qs.length?'全問正解！素晴らしい！':score>=3?'よくできました！':'もう一度挑戦してみましょう！'}</div></div>`;
+}
+
+
+function initApp(){
+  loadState();
+  buildFilters();
+  renderCards();
+  buildStampGrid();
+  buildProgress();
+  updateHeader();
+  startGPS();
+  /* 一覧タブの全スポットGoogleマップボタンを生成 */
+  var wrap = document.getElementById('map-all-wrap');
+  if(wrap){
+    /* 全スポットの座標中心をGoogleマップで開く */
+    var url = 'https://www.google.com/maps/search/関東+歴史建築+スタンプラリー/@35.72,139.72,10z';
+    wrap.innerHTML =
+      '<a class="map-btn-all" href="'+url+'" target="_blank" rel="noopener">'+
+      '🗺 Googleマップで全30スポットを検索する</a>';
+  }
+}
+
+
+function authNo(){document.getElementById('auth-denied').style.display='block';}
+
+/* ─── Googleマップ関連 ─── */
+function gmapUrl(spot){
+  /* スポット名でGoogle検索（スマホはGoogleマップアプリが開く） */
+  return 'https://www.google.com/maps/search/?api=1&query='+
+    encodeURIComponent(spot.name+' '+spot.loc);
+}
+
+function buildMapviewGrid(){
+  var grid = document.getElementById('mapview-grid');
+  if(!grid) return;
+  grid.innerHTML='';
+  SPOTS.forEach(function(s){
+    var visited = STATE.visited[s.id];
+    var quizDone = STATE.quizDone[s.id];
+    var badges = '';
+    if(visited) badges += '<span class="mapview-badge-visited">🔴 朱印済</span>';
+    if(quizDone) badges += '<span class="mapview-badge-quiz">✨ 謎解完了</span>';
+
+    var a = document.createElement('a');
+    a.href = gmapUrl(s);
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.className = 'mapview-card';
+    a.innerHTML =
+      '<div class="mapview-card-top">'+
+        '<div class="mapview-card-ico">'+s.icon+'</div>'+
+        '<div class="mapview-card-main">'+
+          '<div class="mapview-card-num">No.'+String(s.id).padStart(2,'0')+'</div>'+
+          '<div class="mapview-card-name">'+s.name+'</div>'+
+          '<div class="mapview-card-meta">'+s.era+' ／ '+s.region+'</div>'+
+        '</div>'+
+      '</div>'+
+      (badges ? '<div class="mapview-card-badges">'+badges+'</div>' : '')+
+      '<div class="mapview-card-footer">'+
+        '<span>🗺 Googleマップで開く</span>'+
+        '<span class="mapview-card-arrow">→</span>'+
+      '</div>';
+    grid.appendChild(a);
+  });
+}
+
+function authYes(){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  initApp();
+}
+
+function switchTab(btn,viewId){
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  btn.classList.add('active');
+  document.getElementById('view-'+viewId).classList.add('active');
+  if(viewId==='progress') buildProgress();
+  if(viewId==='mapview') buildMapviewGrid();
+}
+
+/* openModal を上書き：地図は Googleマップボタン */
+function openModal(id){
+  currentSpot=SPOTS.find(function(s){return s.id===id;});
+  quizIdx=0;
+  document.getElementById('m-era').textContent='🗓 '+currentSpot.era;
+  document.getElementById('m-title').textContent=currentSpot.icon+'　'+currentSpot.name;
+  document.getElementById('m-loc').textContent='📍 '+currentSpot.loc;
+  document.getElementById('m-desc').textContent=currentSpot.desc;
+  document.getElementById('m-links').innerHTML=currentSpot.links.map(function(l){
+    return '<a class="ext-link" href="'+l.u+'" target="_blank" rel="noopener">🔗 '+l.l+'</a>';
+  }).join('');
+
+  /* Googleマップボタン */
+  document.getElementById('modal-map-btn').innerHTML=
+    '<a class="map-btn-spot" href="'+gmapUrl(currentSpot)+'" target="_blank" rel="noopener">'+
+    '🗺 Googleマップで「'+currentSpot.name+'」を開く</a>';
+
+  /* 料金・時間・アクセス */
+  var ig = document.getElementById('spot-info-grid');
+  ig.innerHTML =
+    '<div class="spot-info-row">'+
+      '<div class="spot-info-lbl">💴 料金</div>'+
+      '<div class="spot-info-val">'+(currentSpot.fee||'—')+'</div>'+
+    '</div>'+
+    '<div class="spot-info-row">'+
+      '<div class="spot-info-lbl">🕐 開館時間</div>'+
+      '<div class="spot-info-val">'+(currentSpot.hours||'—')+'</div>'+
+    '</div>'+
+    '<div class="spot-info-row">'+
+      '<div class="spot-info-lbl">🚃 アクセス</div>'+
+      '<div class="spot-info-val">'+(currentSpot.access||'—')+'</div>'+
+    '</div>';
+
+  updateStampStatus();
+  updateModalGPSInfo();
+  document.getElementById('quiz-result-area').innerHTML='';
+  renderQuiz();
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+/* updateMainMapMarkers / updateListMapMarkers は地図なしなので空実装 */
+function updateMainMapMarkers(){}
+function updateListMapMarkers(){}
+function updateListMapUser(){}
+function updateMainMapUser(){}
+</script>
+</body>
+</html>
